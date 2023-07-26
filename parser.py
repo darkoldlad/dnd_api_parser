@@ -61,8 +61,8 @@ class ParserToGsheet:
             'school', 'bard', 'cleric', 'druid', 'paladin', 'ranger', 'sorcerer', 'warlock', 'wizard'
         ])
 
-        i = 1
         if len(all_spells) > 0:
+            i = 1
             for spell in all_spells:
                 print(f"parsing {i} of {len(all_spells)}: {spell}")
                 spell_data = self._get_spell(spell)
