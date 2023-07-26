@@ -3,6 +3,7 @@ import requests
 import csv
 from google.oauth2 import service_account
 from typing import Union, Dict, List, Optional
+from itertools import accumulate
 
 from config import GSPREAD_SCOPE, GSHEET_CREDENTIALS_PATH, URL_FOR_GSHEET, \
     SPELLS_SHEET_NAME
@@ -55,18 +56,19 @@ class ParserToGsheet:
         headers = [
             'name', 'description', 'higher_level', 'range', 'components', 'material', 'area_of_effect_type', 'area_of_effect_size', 'ritual', 'duration', 'concentration', 'casting_time', 'level', 'attack_type', 'damage_type'
         ]
-        damage_at_level_headers = [f'damage_at_{str(i)}' for i in range(1, 21)]
-        headers.extend(damage_at_level_headers)
+        headers.extend([f'damage_at_level_{str(i)}' for i in range(1, 21)])
+        headers.extend([f'damage_at_slot_{str(i)}' for i in range(1, 10)])
         headers.extend([
             'school', 'bard', 'cleric', 'druid', 'paladin', 'ranger', 'sorcerer', 'warlock', 'wizard'
         ])
+        parsed_spells.append(headers)
 
         if len(all_spells) > 0:
             i = 1
             for spell in all_spells:
                 print(f"parsing {i} of {len(all_spells)}: {spell}")
                 spell_data = self._get_spell(spell)
-                name = spell_data.get('name', f"failed to parse{spell}")
+                name = spell_data.get('name', f"failed to parse: {spell}")
                 description = '\n'.join(spell_data.get('desc', []))
                 higher_level = '\n'.join(spell_data.get('higher_level', []))
                 range_ = spell_data.get('range')
@@ -83,8 +85,27 @@ class ParserToGsheet:
                 attack_type = spell_data.get('attack_type')
                 damage = spell_data.get('damage', {})
                 damage_type = damage.get('damage_type', {}).get('name')
-                damage_at_levels = damage.get('damage_at_character_level') if damage.get('damage_at_character_level') else damage.get('damage_at_slot_level', {})
-                damage_at_level = [damage_at_levels.get(str(i+1)) for i in range(20)]
+                damage_at_levels = damage.get('damage_at_character_level', {})
+                damage_at_level = []
+                for lvl in range(1, 21):
+                    level_damage = damage_at_levels.get(str(lvl))
+                    if level_damage:
+                        damage_at_level.append(level_damage)
+                    elif damage_at_level:
+                        damage_at_level.append(damage_at_level[-1])
+                    else:
+                        damage_at_level.append('')
+                damage_at_slots = damage.get('damage_at_slot_level', {})
+                damage_at_slot = []
+                for slot in range(1, 10):
+                    slot_damage = damage_at_slots.get(str(slot))
+                    if slot_damage:
+                        damage_at_slot.append(slot_damage)
+                    elif damage_at_slot:
+                        damage_at_slot.append(damage_at_slot[-1])
+                    else:
+                        damage_at_slot.append('')
+
                 school = spell_data.get('school', {}).get('name')
                 classes_use = {class_.get('index'): True for class_ in spell_data.get('classes', [])}
 
@@ -106,6 +127,7 @@ class ParserToGsheet:
                     level, attack_type, damage_type
                 ]
                 row.extend(damage_at_level)
+                row.extend(damage_at_slot)
                 row.extend([
                     school, bard, cleric, druid,
                     paladin, ranger,
