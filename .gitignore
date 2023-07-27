@@ -2,6 +2,7 @@ venv
 .env
 .git
 .idea
+.DS_Store
 __pycache__
 output.sql
 DnD entities data - Spells.csv
