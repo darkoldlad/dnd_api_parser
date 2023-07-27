@@ -3,6 +3,7 @@ import requests
 import csv
 import json
 import re
+import os
 from google.oauth2 import service_account
 from typing import Union, Dict, List, Optional
 
@@ -37,10 +38,18 @@ class ParserToGsheet:
             headers=headers,
         )
 
-    def _get_spell(self, spell_name: str) -> Optional[Dict]:
-        response = self._request(path=f'spells/{spell_name}')
-        if response.ok:
-            return response.json()
+    def _get_item(self, item: str, local_folder: str, api_route: str) -> Optional[Dict]:
+        local_storage = f'json_dumps/{local_folder}/{item}.json'
+        if os.path.exists(local_storage):
+            with open(local_storage, "r") as from_local:
+                data = json.load(from_local)
+        else:
+            response = self._request(path=f'{api_route}/{item}')
+            if response.ok:
+                data = response.json()
+                with open(local_storage, 'w') as to_local:
+                    json.dump(data, to_local)
+        return data
 
     def _get_all(self, path: str) -> Optional[List]:
         response = self._request(path=path)
@@ -48,10 +57,6 @@ class ParserToGsheet:
             results = response.json().get('results', [])
             return [result.get('index') for result in results]
 
-    def _get_class(self, class_name: str) -> Optional[Dict]:
-        response = self._request(path=f'classes/{class_name}')
-        if response.ok:
-            return response.json()
 
     def parse_all_spells_from_api_to_gsheet(self, gsheetName=SPELLS_SHEET_NAME) -> str:
         worksheet = self.sheet.worksheet(gsheetName)
@@ -72,7 +77,7 @@ class ParserToGsheet:
             i = 1
             for spell in all_spells:
                 print(f"parsing {i} of {len(all_spells)}: {spell}")
-                spell_data = self._get_spell(spell)
+                spell_data = self._get_item(item=spell, local_folder='spells', api_route='spell/')
                 name = spell_data.get('name', f"failed to parse: {spell}")
                 description = '\n'.join(spell_data.get('desc', []))
                 higher_level = '\n'.join(spell_data.get('higher_level', []))
@@ -147,7 +152,8 @@ class ParserToGsheet:
             return 'jobs done'
         return 'failed to get spells list'
 
-    def parse_all_spells_from_csv_to_sql_file(self, path_to_csv) -> str:
+    @staticmethod
+    def parse_all_spells_from_csv_to_sql_file(path_to_csv) -> str:
         with open(path_to_csv, newline='') as csv_file:
             csv_reader = csv.reader(csv_file)
             headers = next(csv_reader)
@@ -170,7 +176,7 @@ class ParserToGsheet:
                           file=output)
             return 'jobs done'
 
-    def parse_spell_library_json(self, path):
+    def parse_spell_library_json(self, path) -> str:
         worksheet = self.sheet.worksheet('Spells from Spell Library Json')
         parsed_spells = [[
             'name', 'description', 'range', 'components',
@@ -224,7 +230,7 @@ class ParserToGsheet:
         worksheet.append_rows(parsed_spells)
         return 'jobs done'
 
-    def parse_classes_from_api_to_gsheet(self):
+    def parse_classes_from_api_to_gsheet(self) -> str:
         worksheet = self.sheet.worksheet(CLASS_SHEET_NAME)
 
         all_classes = self._get_all('classes/')
@@ -232,7 +238,7 @@ class ParserToGsheet:
         if len(all_classes) and len(all_skills) > 0:
 
             headers = [
-               'index' , 'name', 'hit_die', 'proficiency_choices_description', 'proficiency_choices_choose', 'proficiences_indices', 'proficiences_names'
+               'index', 'name', 'hit_die', 'proficiency_choices_description', 'proficiency_choices_choose', 'proficiences_indices', 'proficiences_names'
             ]
             headers.extend(
                 [skill for skill in all_skills]
@@ -248,7 +254,7 @@ class ParserToGsheet:
 
                 print(f'processing {class_}...', end='')
 
-                class_details = self._get_class(class_)
+                class_details = self._get_item(item=class_, local_folder='classes', api_route='classes/')
                 name = class_details.get('name')
                 hit_die = class_details.get('hit_die')
                 proficiencies_indices = ', '.join([proficiency.get('index') for proficiency in class_details.get('proficiencies', [])])
