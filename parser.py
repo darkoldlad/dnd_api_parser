@@ -1,12 +1,13 @@
 import gspread
 import requests
 import csv
+import json
+import re
 from google.oauth2 import service_account
 from typing import Union, Dict, List, Optional
-from itertools import accumulate
 
 from config import GSPREAD_SCOPE, GSHEET_CREDENTIALS_PATH, URL_FOR_GSHEET, \
-    SPELLS_SHEET_NAME
+    SPELLS_SHEET_NAME, CLASS_SHEET_NAME
 
 
 class ParserToGsheet:
@@ -41,25 +42,29 @@ class ParserToGsheet:
         if response.ok:
             return response.json()
 
-    def _get_all_spells(self, path: str = 'spells/') -> Optional[Dict]:
+    def _get_all(self, path: str) -> Optional[List]:
         response = self._request(path=path)
+        if response.ok:
+            results = response.json().get('results', [])
+            return [result.get('index') for result in results]
+
+    def _get_class(self, class_name: str) -> Optional[Dict]:
+        response = self._request(path=f'classes/{class_name}')
         if response.ok:
             return response.json()
 
     def parse_all_spells_from_api_to_gsheet(self, gsheetName=SPELLS_SHEET_NAME) -> str:
         worksheet = self.sheet.worksheet(gsheetName)
-        spells_list_from_api = self._get_all_spells().get('results')
-        all_spells = [
-            spell.get('index') for spell in spells_list_from_api
-        ]
+        all_spells = self._get_all(path='spells/')
+
         parsed_spells = []
         headers = [
-            'name', 'description', 'higher_level', 'range', 'components', 'material', 'area_of_effect_type', 'area_of_effect_size', 'ritual', 'duration', 'concentration', 'casting_time', 'level', 'attack_type', 'damage_type'
+           'index', 'name', 'description', 'higher_level', 'range', 'components', 'material', 'area_of_effect_type', 'area_of_effect_size', 'ritual', 'duration', 'concentration', 'casting_time', 'level', 'attack_type', 'damage_type'
         ]
         headers.extend([f'damage_at_level_{str(i)}' for i in range(1, 21)])
         headers.extend([f'damage_at_slot_{str(i)}' for i in range(1, 10)])
         headers.extend([
-            'school', 'bard', 'cleric', 'druid', 'paladin', 'ranger', 'sorcerer', 'warlock', 'wizard'
+            'school', 'bard', 'cleric', 'druid', 'fighter', 'monk', 'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'
         ])
         parsed_spells.append(headers)
 
@@ -112,16 +117,16 @@ class ParserToGsheet:
                 bard = classes_use.get('bard', False)
                 cleric = classes_use.get('cleric', False)
                 druid = classes_use.get('druid', False)
-                # fighter don't have spells
-                # monk don't have spells
+                fighter = classes_use.get('fighter', False)
+                monk = classes_use.get('monk', False)
                 paladin = classes_use.get('paladin', False)
                 ranger = classes_use.get('ranger', False)
-                # rogue don't have spells
+                rogue = classes_use.get('rogue', False)
                 sorcerer = classes_use.get('sorcerer', False)
                 warlock = classes_use.get('warlock', False)
                 wizard = classes_use.get('wizard', False)
                 row = [
-                    name, description, higher_level, range_,
+                    spell, name, description, higher_level, range_,
                     components, material, area_of_effect_type, area_of_effect_size,
                     ritual, duration, concentration, casting_time,
                     level, attack_type, damage_type
@@ -130,8 +135,8 @@ class ParserToGsheet:
                 row.extend(damage_at_slot)
                 row.extend([
                     school, bard, cleric, druid,
-                    paladin, ranger,
-                    sorcerer, warlock, wizard
+                    fighter, monk, paladin, ranger,
+                    rogue, sorcerer, warlock, wizard
                 ])
 
                 parsed_spells.append(row)
@@ -139,7 +144,7 @@ class ParserToGsheet:
 
             worksheet.clear()
             worksheet.append_rows(parsed_spells)
-            return 'success'
+            return 'jobs done'
         return 'failed to get spells list'
 
     def parse_all_spells_from_csv_to_sql_file(self, path_to_csv) -> str:
@@ -165,12 +170,135 @@ class ParserToGsheet:
                           file=output)
             return 'jobs done'
 
+    def parse_spell_library_json(self, path):
+        worksheet = self.sheet.worksheet('Spells from Spell Library Json')
+        parsed_spells = [[
+            'name', 'description', 'range', 'components',
+            'material', 'ritual',
+            'duration', 'casting_time', 'level', 'school',
+            'bard', 'cleric', 'druid', 'fighter', 'monk', 'paladin', 'ranger',
+            'rogue', 'sorcerer', 'warlock', 'wizard', 'subclass_only', 'subclasses_list', 'source'
 
+        ]]
+        with open(path, "r") as spell_library:
+            all_spells = json.load(spell_library)
 
+        for spell in all_spells.values():
+            name = spell.get('Name')
+            description = spell.get('Description')
+            range = spell.get('Range')
+            components_full = spell.get('Components', '')
+            components_splitted = components_full.split(" (") if " M (" in components_full else None
+            components = components_splitted[0] if components_splitted else components_full
+            material = components_splitted[1].replace(")", "") if components_splitted else ""
+            ritual = spell.get('Ritual')
+            duration = spell.get('Duration')
+            casting_time = spell.get('CastingTime')
+            level = spell.get('Level')
+            school = spell.get('School')
+            classes_use = {class_.split(" ")[0]: True for class_ in spell.get('Classes', [])}
+            bard = classes_use.get('Bard', False)
+            cleric = classes_use.get('Cleric', False)
+            druid = classes_use.get('Druid', False)
+            fighter = classes_use.get('Fighter', False)
+            monk = classes_use.get('Monk', False)
+            paladin = classes_use.get('Paladin', False)
+            ranger = classes_use.get('Ranger', False)
+            rogue = classes_use.get('Rogue', False)
+            sorcerer = classes_use.get('Sorcerer', False)
+            warlock = classes_use.get('Warlock', False)
+            wizard = classes_use.get('Wizard', False)
+            all_classes = [class_.split(" ")[0].lower() for class_ in spell.get('Classes', [])]
+            subclass_only = ', '.join([class_.split(" ")[0].lower() for class_ in spell.get('Classes', []) if " (" in class_ and all_classes.count(class_.split(" ")[0].lower()) == 1])
+            subclasses_list = ', '.join([re.sub(r'[()]', '',class_.split(" ")[1]).lower() for class_ in spell.get('Classes', []) if " (" in class_ and all_classes.count(class_.split(" ")[0].lower()) == 1])
+            source = spell.get('Source')
+            parsed_spells.append(
+                [
+                    name, description, range, components, material, ritual, duration, casting_time, level, school,
+                    bard, cleric, druid,
+                    fighter, monk, paladin, ranger,
+                    rogue, sorcerer, warlock, wizard, subclass_only, subclasses_list, source
+                ]
+            )
+        worksheet.clear()
+        worksheet.append_rows(parsed_spells)
+        return 'jobs done'
 
+    def parse_classes_from_api_to_gsheet(self):
+        worksheet = self.sheet.worksheet(CLASS_SHEET_NAME)
 
+        all_classes = self._get_all('classes/')
+        all_skills = self._get_all('skills/')
+        if len(all_classes) and len(all_skills) > 0:
 
+            headers = [
+               'index' , 'name', 'hit_die', 'proficiency_choices_description', 'proficiency_choices_choose', 'proficiences_indices', 'proficiences_names'
+            ]
+            headers.extend(
+                [skill for skill in all_skills]
+            )
+            headers.extend(['saving_throws', 'level', 'ability_score_bonuses', 'prof_bonus', 'features_indices', 'features_names', 'cantrips'])
+            headers.extend([
+                f'spell_slots_level_{i}'
+                            for i in range(1, 10)
+            ])
+            parsed_classes = [headers]
 
+            for class_ in all_classes:
 
+                print(f'processing {class_}...', end='')
 
+                class_details = self._get_class(class_)
+                name = class_details.get('name')
+                hit_die = class_details.get('hit_die')
+                proficiencies_indices = ', '.join([proficiency.get('index') for proficiency in class_details.get('proficiencies', [])])
+                proficiencies_names = ', '.join([proficiency.get('name') for proficiency in class_details.get('proficiencies', [])])
+                proficiency_choices = class_details.get('proficiency_choices', [{}])
 
+                if len(proficiency_choices) > 1:
+                    print(f'{class_} has {len(proficiency_choices)} proficiency choices...', end='')
+
+                proficiency_choices_description = proficiency_choices[0].get('desc')
+                proficiency_choices_choose = proficiency_choices[0].get('choose')
+                proficiency_options = {
+                    skill.get('item', {}).get('index').replace('skill-',
+                                                              '').lower(): True
+                    for skill in
+                    proficiency_choices[0].get('from', {}).get('options', [])
+                    if 'skill-' in skill.get('item', {}).get('index')
+                }
+                all_profficiencies_skills = [
+                    proficiency_options.get(skill, False) for skill in all_skills
+                ]
+                saving_throws = ', '.join([st.get('name') for st in class_details.get('saving_throws', [])])
+                class_levels_response = self._request(path=f'classes/{class_}/levels')
+                if class_levels_response.ok:
+                    class_levels = class_levels_response.json()
+                    for level in class_levels:
+                        class_level = level.get('level')
+
+                        if class_level == 1:
+                            print('level 1', end='\n')
+                        else:
+                            print(f'processing {class_}...level {class_level}', end='\n')
+
+                        ability_score_bonuses = level.get('ability_score_bonuses')
+                        prof_bonus = level.get('prof_bonus')
+                        features_indices = ', '.join([feature.get('index') for feature in level.get('features', [])])
+                        features_names = ', '.join([feature.get('name') for feature in level.get('features', [])])
+                        spellcasting_list = [level.get('spellcasting', {}).get('cantrips_known')]
+                        spellcasting_list.extend([
+                            level.get('spellcasting', {}).get(f'spell_slots_level_{i}')
+                            for i in range(1, 10)
+                        ])
+                        row = [
+                            class_, name, hit_die, proficiency_choices_description,
+                            proficiency_choices_choose, proficiencies_indices, proficiencies_names,
+                        ]
+                        row.extend(all_profficiencies_skills)
+                        row.extend([saving_throws, class_level, ability_score_bonuses, prof_bonus, features_indices, features_names])
+                        row.extend(spellcasting_list)
+                        parsed_classes.append(row)
+            worksheet.clear()
+            worksheet.append_rows(parsed_classes)
+            return 'jobs done'
