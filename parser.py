@@ -6,9 +6,10 @@ import re
 import os
 from google.oauth2 import service_account
 from typing import Union, Dict, List, Optional
+from enum import Enum
 
 from config import GSPREAD_SCOPE, GSHEET_CREDENTIALS_PATH, URL_FOR_GSHEET, \
-    SPELLS_SHEET_NAME, CLASS_SHEET_NAME
+    SPELLS_SHEET_NAME, CLASS_SHEET_NAME, RACES_SHEET_NAME, FEATURES_SHEET_NAME, TRAITS_SHEET_NAME, SKILLS_SHEET_NAME
 
 
 class ParserToGsheet:
@@ -58,7 +59,7 @@ class ParserToGsheet:
             return [result.get('index') for result in results]
 
 
-    def parse_all_spells_from_api_to_gsheet(self, gsheetName=SPELLS_SHEET_NAME) -> str:
+    def parse_spells_from_api_to_gsheet(self, gsheetName=SPELLS_SHEET_NAME) -> str:
         worksheet = self.sheet.worksheet(gsheetName)
         all_spells = self._get_all(path='spells/')
 
@@ -153,7 +154,7 @@ class ParserToGsheet:
         return 'failed to get spells list'
 
     @staticmethod
-    def parse_all_spells_from_csv_to_sql_file(path_to_csv) -> str:
+    def parse_spells_from_csv_to_sql_file(path_to_csv: str) -> str:
         with open(path_to_csv, newline='') as csv_file:
             csv_reader = csv.reader(csv_file)
             headers = next(csv_reader)
@@ -308,3 +309,145 @@ class ParserToGsheet:
             worksheet.clear()
             worksheet.append_rows(parsed_classes)
             return 'jobs done'
+        return f'failed to receive {" ".join([name for name, lst in zip(["all_skills", "all_classes"], [all_skills, all_classes]) if len(lst) == 0 ])}'
+
+    def parse_races_from_api_to_gsheet(self) -> str:
+        worksheet = self.sheet.worksheet(RACES_SHEET_NAME)
+        abilities_list = ['STR', 'DEX', 'CON', 'WIS', 'INT', 'CHA']
+        headers = [
+            'index', 'name', 'speed'
+        ]
+        headers.extend([
+            f'{ability}_mod' for ability in abilities_list
+        ])
+        headers.extend([
+            'alignment', 'age', 'size', 'size_description', 'proficiencies_indices',
+            'proficiencies_names', 'languages', 'language_desc', 'traits_indices', 'traits_names'
+        ])
+
+        parsed_data = [headers]
+        all_races = self._get_all('races/')
+        if len(all_races) > 0:
+            for race in all_races:
+
+                print(f'collecting {race} data')
+
+                race_details = self._get_item(item=race, local_folder='races', api_route='races/')
+
+                name = race_details.get('name')
+                speed = race_details.get('speed')
+                ability_bonuses = race_details.get('ability_bonuses')
+                all_abilities = {
+                    ability_bonus.get('ability_score', {}).get('name'):  ability_bonus.get('bonus')
+                    for ability_bonus in ability_bonuses
+                }
+                ability_modifiers = [all_abilities.get(ability) for ability in abilities_list]
+                alignment = race_details.get('alignment')
+                age = race_details.get('age')
+                size = race_details.get('size')
+                size_description = race_details.get('size_description')
+                proficiencies_indices = ', '.join([proficiency.get('index') for proficiency in race_details.get('starting_proficiencies')])
+                proficiencies_names = ', '.join(
+                    [proficiency.get('name') for proficiency in
+                     race_details.get('starting_proficiencies')])
+                languages = ', '.join(
+                    [language.get('name') for language in
+                     race_details.get('languages')])
+                language_desc = race_details.get('language_desc')
+                traits_indices = ', '.join([trait.get('index') for trait in race_details.get('traits')])
+                traits_names = ', '.join([trait.get('name') for trait in race_details.get('traits')])
+                row = [race, name, speed]
+                row.extend(ability_modifiers)
+                row.extend([alignment, age, size, size_description, proficiencies_indices,
+            proficiencies_names, languages, language_desc, traits_indices, traits_names])
+
+                parsed_data.append(row)
+            worksheet.clear()
+            worksheet.append_rows(parsed_data)
+            return 'jobs done'
+        return 'failed to receive races list'
+
+    def parse_features_from_api_to_gsheet(self) -> str:
+        worksheet = self.sheet.worksheet(FEATURES_SHEET_NAME)
+        headers = [
+            'index', 'name', 'class_index', 'description', 'level'
+        ]
+        parsed_data = [headers]
+        all_features = self._get_all('features/')
+        if len(all_features) > 0:
+            for feature in all_features:
+
+                print(f'processing {feature}')
+
+                feature_data = self._get_item(item=feature, local_folder='features', api_route='features/')
+                name = feature_data.get('name')
+                class_index = feature_data.get('class', {}).get('index')
+                desc = '\n'.join(feature_data.get('desc', []))
+                level = feature_data.get('level')
+                row = [
+                    feature, name, class_index, desc, level
+                ]
+                parsed_data.append(row)
+            worksheet.clear()
+            worksheet.append_rows(parsed_data)
+            return 'jobs done'
+        return 'failed to get all features'
+
+    def parse_traits_from_api_to_gsheet(self):
+        worksheet = self.sheet.worksheet(TRAITS_SHEET_NAME)
+        headers = [
+            'index', 'name', 'description', 'races_indices', 'proficiencies_indices', 'proficiencies_names',
+            'damage_type', 'area_of_effect_type', 'area_of_effect_size', 'usage_times', 'dc', 'dc_success'
+        ]
+        headers.extend([f'damage_at_{lvl}' for lvl in range(1, 21)])
+
+        parsed_data = [headers]
+        all_traits = self._get_all('traits/')
+        if len(all_traits) > 0:
+            for trait in all_traits:
+
+                print(f'processing {trait}')
+
+                trait_data = self._get_item(item=trait, local_folder='traits', api_route='traits/')
+                name = trait_data.get('name')
+                desc = '\n'.join(trait_data.get('desc', []))
+                races = ', '.join([race.get('index') for race in
+                                   trait_data.get('races', [])])
+                profficiencies_indices = ', '.join([
+                    profficiency.get('index') for profficiency in trait_data.get('proficiencies', [])
+                ])
+                profficiencies_names = ', '.join([
+                    profficiency.get('name') for profficiency in trait_data.get('proficiencies', [])
+                ])
+                trait_specific = trait_data.get('trait_specific', {})
+                damage_type = trait_specific.get('damage_type',{}).get('name')
+                area_of_effect_type = trait_specific.get('breath_weapon',{}).get('area_of_effect',{}).get('type')
+                area_of_effect_size = trait_specific.get('breath_weapon',
+                                                         {}).get(
+                    'area_of_effect', {}).get('size')
+                usage_times = trait_specific.get('breath_weapon',{}).get('usage',{}).get('times')
+                dc = trait_specific.get('breath_weapon',{}).get('dc',{}).get('dc_type',{}).get('name')
+                dc_success = trait_specific.get('breath_weapon',{}).get('dc',{}).get('success_type')
+                damage_data = trait_specific.get('breath_weapon',{}).get('damage',[])
+                damage_at_levels = []
+                if len(damage_data)>0:
+                    for lvl in range(1,21):
+                        damage_at_level = damage_data[0].get('damage_at_character_level',{}).get(str(lvl))
+                        if damage_at_level:
+                            damage_at_levels.append(damage_at_level)
+                        elif damage_at_levels:
+                            damage_at_levels.append(damage_at_levels[-1])
+                        else:
+                            damage_at_levels.append('')
+
+                row = [trait, name, desc, races, profficiencies_indices, profficiencies_names, damage_type, area_of_effect_type,
+                       area_of_effect_size, usage_times, dc, dc_success]
+                row.extend(damage_at_levels)
+                print(len(row), len(headers))
+
+                parsed_data.append(row)
+            worksheet.clear()
+            worksheet.append_rows(parsed_data)
+            return 'jobs done'
+
+        return 'failed to get all traits'
