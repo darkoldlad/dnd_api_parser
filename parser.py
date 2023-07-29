@@ -265,17 +265,13 @@ class ParserToGsheet:
         worksheet = self._get_worksheet(CLASS_SHEET_NAME)
 
         all_classes = self._get_all(route)
-        all_skills = self._get_all('skills/')
 
-        if len(all_classes) and len(all_skills) > 0:
+        if len(all_classes) > 0:
 
             headers = [
-               'index', 'name', 'hit_die', 'proficiency_skills_description', 'proficiency_skills_choose',
+               'index', 'name', 'hit_die', 'proficiency_skills_description', 'proficiency_skills_choose', 'possible_skill',
+                'saving_throws', 'level', 'ability_score_bonuses', 'prof_bonus', 'features_names', 'cantrips'
             ]
-            headers.extend(
-                [skill for skill in all_skills]
-            )
-            headers.extend(['saving_throws', 'level', 'ability_score_bonuses', 'prof_bonus', 'features_names', 'cantrips'])
             headers.extend([
                 f'spell_slots_level_{i}'
                             for i in range(1, 10)
@@ -297,49 +293,54 @@ class ParserToGsheet:
 
                 proficiency_skills_description = proficiencies_skills[0].get('desc')
                 proficiency_skills_choose = proficiencies_skills[0].get('choose')
-                proficiency_options = {
-                    skill.get('item', {}).get('index').replace('skill-',
-                                                              '').lower(): True
-                    for skill in
-                    proficiencies_skills[0].get('from', {}).get('options', [])
-                    if 'skill-' in skill.get('item', {}).get('index')
-                }
-                all_profficiencies_skills = [
-                    proficiency_options.get(skill, False) for skill in all_skills
-                ]
+
                 saving_throws = ', '.join([st.get('name') for st in class_details.get('saving_throws', [])])
                 class_levels_response = self._request(path=f'{route + class_}/levels')
                 if class_levels_response.ok:
                     class_levels = class_levels_response.json()
                     for level in class_levels:
                         class_level = level.get('level')
+                        possible_skill = ''
 
-                        if class_level == 1:
-                            print('level 1', end='\n')
-                        else:
-                            print(f'processing {class_}...level {class_level}', end='\n')
-                        ability_score_bonuses = level.get('ability_score_bonuses')
-                        prof_bonus = level.get('prof_bonus')
-
-                        features_names = ', '.join([feature.get('name') for feature in level.get('features', [])])
                         spellcasting_list = [level.get('spellcasting', {}).get('cantrips_known')]
                         spellcasting_list.extend([
                             level.get('spellcasting', {}).get(f'spell_slots_level_{i}')
                             for i in range(1, 10)
                         ])
-                        row = [
-                            class_, name, hit_die, proficiency_skills_description,
-                            proficiency_skills_choose,
-                        ]
-                        row.extend(all_profficiencies_skills)
-                        row.extend([saving_throws, class_level, ability_score_bonuses, prof_bonus,
-                                    features_names])
-                        row.extend(spellcasting_list)
-                        parsed_classes.append(row)
+                        ability_score_bonuses = level.get('ability_score_bonuses')
+                        prof_bonus = level.get('prof_bonus')
+
+                        features_names = ', '.join([feature.get('name') for feature in level.get('features', [])])
+
+                        if class_level == 1:
+
+                            print('level 1', end='\n')
+
+                            possible_skills = proficiencies_skills[0].get('from', {}).get('options', [{}])
+
+                            for skill in possible_skills:
+                                possible_skill = skill.get('item', {}).get('index', 'skill-').replace('skill-', '')
+                                row = [
+                                    class_, name, hit_die, proficiency_skills_description,
+                                    proficiency_skills_choose, possible_skill,
+                                    saving_throws, class_level, ability_score_bonuses, prof_bonus,
+                                    features_names]
+                                row.extend(spellcasting_list)
+                                parsed_classes.append(row)
+
+                        else:
+                            print(f'processing {class_}...level {class_level}', end='\n')
+                            row = [
+                                class_, name, hit_die, proficiency_skills_description,
+                                proficiency_skills_choose, possible_skill,
+                            saving_throws, class_level, ability_score_bonuses, prof_bonus,
+                                        features_names]
+                            row.extend(spellcasting_list)
+                            parsed_classes.append(row)
             worksheet.clear()
             worksheet.append_rows(parsed_classes)
             return 'jobs done'
-        return f'failed to receive {" ".join([name for name, lst in zip(["all_skills", "all_classes"], [all_skills, all_classes]) if len(lst) == 0 ])}'
+        return 'failed to receive all classes'
 
     def parse_races(self, route: str = 'races/') -> str:
         worksheet = self._get_worksheet(RACES_SHEET_NAME)
@@ -494,7 +495,7 @@ class ParserToGsheet:
     def parse_proficiencies(self, route: str ='proficiencies/') -> str:
         worksheet = self._get_worksheet(PROFICIENCIES_SHEET_NAME)
 
-        headers = ['index', 'name', 'type', 'class_index', 'race_index', 'reference_index', 'reference_url']
+        headers = ['index', 'name', 'reference_type', 'class_index', 'race_index', 'reference_index', 'reference_url']
         parsed_data = [headers]
 
         all_proficiencies = self._get_all(route)
@@ -506,7 +507,7 @@ class ParserToGsheet:
 
                 proficiency_data = self._get_item(item=proficiency, local_folder='proficiencies', api_route=route)
                 name = proficiency_data.get('name')
-                type = proficiency_data.get('type')
+                reference_type = proficiency_data.get('type')
                 reference_index = proficiency_data.get('reference', {}).get('index')
                 reference_url = proficiency_data.get('reference', {}).get('url')
                 proficiency_classes = proficiency_data.get('classes', []) if len(proficiency_data.get('classes', [])) > 0 else [{'index': ''}]
@@ -516,7 +517,7 @@ class ParserToGsheet:
                     for class_ in proficiency_classes:
                         class_index = class_.get('index')
                         row = [
-                            proficiency, name, type, class_index, race_index, reference_index, reference_url
+                            proficiency, name, reference_type, class_index, race_index, reference_index, reference_url
                         ]
                         parsed_data.append(row)
             worksheet.clear()
@@ -567,8 +568,3 @@ class ParserToGsheet:
                 result = method()
                 if result:
                     print(result)
-
-
-
-
-
