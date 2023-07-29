@@ -4,6 +4,7 @@ import csv
 import json
 import re
 import os
+import inspect
 from google.oauth2 import service_account
 from typing import Union, Dict, List, Optional
 from enum import Enum
@@ -11,6 +12,16 @@ from enum import Enum
 from config import GSPREAD_SCOPE, GSHEET_CREDENTIALS_PATH, URL_FOR_GSHEET, \
     SPELLS_SHEET_NAME, CLASS_SHEET_NAME, RACES_SHEET_NAME, FEATURES_SHEET_NAME, TRAITS_SHEET_NAME, SKILLS_SHEET_NAME, \
     PROFICIENCIES_SHEET_NAME
+
+
+class Methods(str, Enum):
+    PARSE_SPELLS = 'parse_spells'
+    PARSE_CLASSES = 'parse_classes'
+    PARSE_RACES = 'parse_races'
+    PARSE_TRAITS = 'parse_traits'
+    PARSE_FEATURES = 'parse_features'
+    PARSE_PROFICIENCIES = 'parse_proficiencies'
+    PARSE_SKILLS = 'parse_skills'
 
 
 class ParserToGsheet:
@@ -173,7 +184,7 @@ class ParserToGsheet:
         return 'failed to get spells list'
 
     @staticmethod
-    def parse_spells_from_csv_to_sql_file(path_to_csv: str) -> str:
+    def parse_csv_to_sql_file(path_to_csv: str) -> str:
         with open(path_to_csv, newline='') as csv_file:
             csv_reader = csv.reader(csv_file)
             headers = next(csv_reader)
@@ -255,15 +266,16 @@ class ParserToGsheet:
 
         all_classes = self._get_all(route)
         all_skills = self._get_all('skills/')
+
         if len(all_classes) and len(all_skills) > 0:
 
             headers = [
-               'index', 'name', 'hit_die', 'proficiency_choices_description', 'proficiency_choices_choose', 'proficiences_indices', 'proficiences_names'
+               'index', 'name', 'hit_die', 'proficiency_skills_description', 'proficiency_skills_choose',
             ]
             headers.extend(
                 [skill for skill in all_skills]
             )
-            headers.extend(['saving_throws', 'level', 'ability_score_bonuses', 'prof_bonus', 'features_indices', 'features_names', 'cantrips'])
+            headers.extend(['saving_throws', 'level', 'ability_score_bonuses', 'prof_bonus', 'features_names', 'cantrips'])
             headers.extend([
                 f'spell_slots_level_{i}'
                             for i in range(1, 10)
@@ -277,20 +289,19 @@ class ParserToGsheet:
                 class_details = self._get_item(item=class_, local_folder='classes', api_route=route)
                 name = class_details.get('name')
                 hit_die = class_details.get('hit_die')
-                proficiencies_indices = ', '.join([proficiency.get('index') for proficiency in class_details.get('proficiencies', [])])
-                proficiencies_names = ', '.join([proficiency.get('name') for proficiency in class_details.get('proficiencies', [])])
-                proficiency_choices = class_details.get('proficiency_choices', [{}])
 
-                if len(proficiency_choices) > 1:
-                    print(f'{class_} has {len(proficiency_choices)} proficiency choices...', end='')
+                proficiencies_skills = class_details.get('proficiency_choices', [{}])
 
-                proficiency_choices_description = proficiency_choices[0].get('desc')
-                proficiency_choices_choose = proficiency_choices[0].get('choose')
+                if len(proficiencies_skills) > 1:
+                    print(f'{class_} has {len(proficiencies_skills)} proficiency choices...', end='')
+
+                proficiency_skills_description = proficiencies_skills[0].get('desc')
+                proficiency_skills_choose = proficiencies_skills[0].get('choose')
                 proficiency_options = {
                     skill.get('item', {}).get('index').replace('skill-',
                                                               '').lower(): True
                     for skill in
-                    proficiency_choices[0].get('from', {}).get('options', [])
+                    proficiencies_skills[0].get('from', {}).get('options', [])
                     if 'skill-' in skill.get('item', {}).get('index')
                 }
                 all_profficiencies_skills = [
@@ -307,10 +318,9 @@ class ParserToGsheet:
                             print('level 1', end='\n')
                         else:
                             print(f'processing {class_}...level {class_level}', end='\n')
-
                         ability_score_bonuses = level.get('ability_score_bonuses')
                         prof_bonus = level.get('prof_bonus')
-                        features_indices = ', '.join([feature.get('index') for feature in level.get('features', [])])
+
                         features_names = ', '.join([feature.get('name') for feature in level.get('features', [])])
                         spellcasting_list = [level.get('spellcasting', {}).get('cantrips_known')]
                         spellcasting_list.extend([
@@ -318,11 +328,12 @@ class ParserToGsheet:
                             for i in range(1, 10)
                         ])
                         row = [
-                            class_, name, hit_die, proficiency_choices_description,
-                            proficiency_choices_choose, proficiencies_indices, proficiencies_names,
+                            class_, name, hit_die, proficiency_skills_description,
+                            proficiency_skills_choose,
                         ]
                         row.extend(all_profficiencies_skills)
-                        row.extend([saving_throws, class_level, ability_score_bonuses, prof_bonus, features_indices, features_names])
+                        row.extend([saving_throws, class_level, ability_score_bonuses, prof_bonus,
+                                    features_names])
                         row.extend(spellcasting_list)
                         parsed_classes.append(row)
             worksheet.clear()
@@ -340,12 +351,14 @@ class ParserToGsheet:
             f'{ability}_mod' for ability in abilities_list
         ])
         headers.extend([
-            'alignment', 'age', 'size', 'size_description', 'proficiencies_indices',
-            'proficiencies_names', 'languages', 'language_desc', 'traits_indices', 'traits_names'
+            'alignment', 'age', 'size', 'size_description',
+            'proficiencies_names', 'languages', 'language_desc', 'traits_names'
         ])
 
         parsed_data = [headers]
+
         all_races = self._get_all(route)
+
         if len(all_races) > 0:
             for race in all_races:
 
@@ -365,7 +378,7 @@ class ParserToGsheet:
                 age = race_details.get('age')
                 size = race_details.get('size')
                 size_description = race_details.get('size_description')
-                proficiencies_indices = ', '.join([proficiency.get('index') for proficiency in race_details.get('starting_proficiencies')])
+
                 proficiencies_names = ', '.join(
                     [proficiency.get('name') for proficiency in
                      race_details.get('starting_proficiencies')])
@@ -373,12 +386,12 @@ class ParserToGsheet:
                     [language.get('name') for language in
                      race_details.get('languages')])
                 language_desc = race_details.get('language_desc')
-                traits_indices = ', '.join([trait.get('index') for trait in race_details.get('traits')])
+
                 traits_names = ', '.join([trait.get('name') for trait in race_details.get('traits')])
                 row = [race, name, speed]
                 row.extend(ability_modifiers)
-                row.extend([alignment, age, size, size_description, proficiencies_indices,
-            proficiencies_names, languages, language_desc, traits_indices, traits_names])
+                row.extend([alignment, age, size, size_description,
+            proficiencies_names, languages, language_desc, traits_names])
 
                 parsed_data.append(row)
             worksheet.clear()
@@ -392,7 +405,9 @@ class ParserToGsheet:
             'index', 'name', 'class_index', 'description', 'level'
         ]
         parsed_data = [headers]
+
         all_features = self._get_all(route)
+
         if len(all_features) > 0:
             for feature in all_features:
 
@@ -412,16 +427,17 @@ class ParserToGsheet:
             return 'jobs done'
         return 'failed to get all features'
 
-    def parse_traits(self, route: str = 'traits/'):
+    def parse_traits(self, route: str = 'traits/') -> str:
         worksheet = self._get_worksheet(TRAITS_SHEET_NAME)
         headers = [
-            'index', 'name', 'description', 'races_indices', 'proficiencies_indices', 'proficiencies_names',
-            'damage_type', 'area_of_effect_type', 'area_of_effect_size', 'usage_times', 'dc', 'dc_success'
+            'index', 'name', 'description', 'race_index', 'proficiency_index', 'is_damage',
+            'damage_type', 'area_of_effect_type', 'area_of_effect_size', 'usage_times', 'dc', 'dc_success', 'level', 'damage'
         ]
-        headers.extend([f'damage_at_{lvl}' for lvl in range(1, 21)])
 
         parsed_data = [headers]
+
         all_traits = self._get_all(route)
+
         if len(all_traits) > 0:
             for trait in all_traits:
 
@@ -430,46 +446,129 @@ class ParserToGsheet:
                 trait_data = self._get_item(item=trait, local_folder='traits', api_route=route)
                 name = trait_data.get('name')
                 desc = '\n'.join(trait_data.get('desc', []))
-                races = ', '.join([race.get('index') for race in
-                                   trait_data.get('races', [])])
-                profficiencies_indices = ', '.join([
-                    profficiency.get('index') for profficiency in trait_data.get('proficiencies', [])
-                ])
-                profficiencies_names = ', '.join([
-                    profficiency.get('name') for profficiency in trait_data.get('proficiencies', [])
-                ])
-                trait_specific = trait_data.get('trait_specific', {})
-                damage_type = trait_specific.get('damage_type',{}).get('name')
-                area_of_effect_type = trait_specific.get('breath_weapon',{}).get('area_of_effect',{}).get('type')
-                area_of_effect_size = trait_specific.get('breath_weapon',
-                                                         {}).get(
-                    'area_of_effect', {}).get('size')
-                usage_times = trait_specific.get('breath_weapon',{}).get('usage',{}).get('times')
-                dc = trait_specific.get('breath_weapon',{}).get('dc',{}).get('dc_type',{}).get('name')
-                dc_success = trait_specific.get('breath_weapon',{}).get('dc',{}).get('success_type')
-                damage_data = trait_specific.get('breath_weapon',{}).get('damage',[])
-                damage_at_levels = []
-                if len(damage_data)>0:
-                    for lvl in range(1,21):
-                        damage_at_level = damage_data[0].get('damage_at_character_level',{}).get(str(lvl))
-                        if damage_at_level:
-                            damage_at_levels.append(damage_at_level)
-                        elif damage_at_levels:
-                            damage_at_levels.append(damage_at_levels[-1])
+                race_indices = trait_data.get('races', []) if len(trait_data.get('races', [])) > 0 else [{'index':''}]
+                proficiencies_indices = trait_data.get('proficiencies', []) if len(trait_data.get('proficiencies', [])) > 0 else [{'index':''}]
+
+                for race in race_indices:
+                    race_index=race.get('index')
+                    for proficiency in proficiencies_indices:
+                        proficiency_index = proficiency.get('index')
+                        trait_specific = trait_data.get('trait_specific', {})
+                        damage_type = trait_specific.get('damage_type',{}).get('name')
+                        area_of_effect_type = trait_specific.get('breath_weapon',{}).get('area_of_effect',{}).get('type')
+                        area_of_effect_size = trait_specific.get('breath_weapon',
+                                                                 {}).get(
+                            'area_of_effect', {}).get('size')
+                        usage_times = trait_specific.get('breath_weapon',{}).get('usage',{}).get('times')
+                        dc = trait_specific.get('breath_weapon',{}).get('dc',{}).get('dc_type',{}).get('name')
+                        dc_success = trait_specific.get('breath_weapon',{}).get('dc',{}).get('success_type')
+                        damage_data = trait_specific.get('breath_weapon',{}).get('damage',[])
+
+                        is_damage = True if len(damage_data) > 0 else False
+                        prev_damage = ''
+                        damage = ''
+                        level = ''
+                        if is_damage:
+                            for lvl in range(1,21):
+                                level = lvl
+                                damage_at_level = damage_data[0].get('damage_at_character_level',{}).get(str(lvl))
+                                if damage_at_level:
+                                    damage = damage_at_level
+                                    prev_damage = damage_at_level
+                                elif prev_damage:
+                                    damage = prev_damage
+
+                                row = [trait, name, desc, race_index, proficiency_index, is_damage, damage_type, area_of_effect_type,
+                                       area_of_effect_size, usage_times, dc, dc_success, level, damage, ]
+                                parsed_data.append(row)
                         else:
-                            damage_at_levels.append('')
-
-                row = [trait, name, desc, races, profficiencies_indices, profficiencies_names, damage_type, area_of_effect_type,
-                       area_of_effect_size, usage_times, dc, dc_success]
-                row.extend(damage_at_levels)
-
-                parsed_data.append(row)
+                            row = [trait, name, desc, race_index, proficiency_index, is_damage, damage_type, area_of_effect_type,
+                                   area_of_effect_size, usage_times, dc, dc_success, level, damage, ]
+                            parsed_data.append(row)
             worksheet.clear()
             worksheet.append_rows(parsed_data)
             return 'jobs done'
 
         return 'failed to get all traits'
 
-    def parse_proficiencies(self, route: str ='proficiencies/'):
+    def parse_proficiencies(self, route: str ='proficiencies/') -> str:
         worksheet = self._get_worksheet(PROFICIENCIES_SHEET_NAME)
+
+        headers = ['index', 'name', 'type', 'class_index', 'race_index', 'reference_index', 'reference_url']
+        parsed_data = [headers]
+
         all_proficiencies = self._get_all(route)
+
+        if len(all_proficiencies) > 0:
+            for proficiency in all_proficiencies:
+
+                print(f'processing {proficiency}')
+
+                proficiency_data = self._get_item(item=proficiency, local_folder='proficiencies', api_route=route)
+                name = proficiency_data.get('name')
+                type = proficiency_data.get('type')
+                reference_index = proficiency_data.get('reference', {}).get('index')
+                reference_url = proficiency_data.get('reference', {}).get('url')
+                proficiency_classes = proficiency_data.get('classes', []) if len(proficiency_data.get('classes', [])) > 0 else [{'index': ''}]
+                proficiency_races = proficiency_data.get('races', []) if len(proficiency_data.get('races', [])) > 0 else [{'index': ''}]
+                for race in proficiency_races:
+                    race_index = race.get('index')
+                    for class_ in proficiency_classes:
+                        class_index = class_.get('index')
+                        row = [
+                            proficiency, name, type, class_index, race_index, reference_index, reference_url
+                        ]
+                        parsed_data.append(row)
+            worksheet.clear()
+            worksheet.append_rows(parsed_data)
+            return 'jobs done'
+
+        return 'failed to get all proficiencies'
+
+    def parse_skills(self, route: str = 'skills/') -> str:
+        worksheet = self._get_worksheet(SKILLS_SHEET_NAME)
+        headers = ['index', 'name', 'ability_score', 'desc']
+        parsed_data = [headers]
+
+        all_skills = self._get_all(route)
+
+
+        if len(all_skills) > 0:
+            for skill in all_skills:
+                skill_data = self._get_item(item=skill, local_folder='skills', api_route=route)
+
+                print(f'processing {skill}')
+
+                name = skill_data.get('name')
+                ability_score = skill_data.get('ability_score', {}).get('name')
+                description = '\n'.join(skill_data.get('desc', []))
+
+                row = [skill, name, ability_score, description]
+                parsed_data.append(row)
+            worksheet.clear()
+            worksheet.append_rows(parsed_data)
+            return 'jobs done'
+
+        return 'failed to get all skills'
+
+    def parse_all(self, exceptions: Union[List[Methods], None] = None):
+
+        exceptions_const = ['__init__' ,'parse_all', '_request', '_get_all', '_get_item', '_get_worksheet', 'parse_csv_to_sql_file',
+                            'parse_spell_library_json']
+        all_methods = [name for name, method in inspect.getmembers(self, inspect.ismethod) if name not in exceptions_const]
+
+        for method_name in all_methods:
+            if method_name not in exceptions:
+
+                print(f'Launching {method_name}')
+
+                method = getattr(self, method_name)
+
+                result = method()
+                if result:
+                    print(result)
+
+
+
+
+
