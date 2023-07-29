@@ -3,13 +3,17 @@ from parser import ParserToGsheet
 
 def main():
     parser = ParserToGsheet()
-    # spells_api_result = parser.parse_spells_from_api_to_gsheet()
+    spells_api_result = parser.parse_spells()
+    print(spells_api_result)
     # csv_parsing_result = parser.parse_spells_from_csv_to_sql_file('DnD entities data - Spells.csv')
     # json_parsing_result = parser.parse_spell_library_json('Spell Library 11-16-19.JSON')
-    # classes_api_result = parser.parse_classes_from_api_to_gsheet()
-    # races_api_result = parser.parse_races_from_api_to_gsheet()
-    # traits_api_result = parser.parse_traits_from_api_to_gsheet()
-    features_api_result = parser.parse_features_from_api_to_gsheet()
+    classes_api_result = parser.parse_classes()
+    print(classes_api_result)
+    races_api_result = parser.parse_races()
+    print(races_api_result)
+    traits_api_result = parser.parse_traits()
+    print(traits_api_result)
+    features_api_result = parser.parse_features()
     print(features_api_result)
 
 

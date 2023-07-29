@@ -9,7 +9,8 @@ from typing import Union, Dict, List, Optional
 from enum import Enum
 
 from config import GSPREAD_SCOPE, GSHEET_CREDENTIALS_PATH, URL_FOR_GSHEET, \
-    SPELLS_SHEET_NAME, CLASS_SHEET_NAME, RACES_SHEET_NAME, FEATURES_SHEET_NAME, TRAITS_SHEET_NAME, SKILLS_SHEET_NAME
+    SPELLS_SHEET_NAME, CLASS_SHEET_NAME, RACES_SHEET_NAME, FEATURES_SHEET_NAME, TRAITS_SHEET_NAME, SKILLS_SHEET_NAME, \
+    PROFICIENCIES_SHEET_NAME
 
 
 class ParserToGsheet:
@@ -39,8 +40,27 @@ class ParserToGsheet:
             headers=headers,
         )
 
+    def _get_worksheet(self, gsheet_name: str):
+        try:
+            worksheet = self.sheet.worksheet(gsheet_name)
+            return worksheet
+        except gspread.exceptions.WorksheetNotFound:
+            worksheet = self.sheet.add_worksheet(title=gsheet_name, rows="1000", cols="26")
+            return worksheet
+
     def _get_item(self, item: str, local_folder: str, api_route: str) -> Optional[Dict]:
-        local_storage = f'json_dumps/{local_folder}/{item}.json'
+
+        root_dir = 'json_dumps'
+
+        os.makedirs(
+            os.path.join(
+                root_dir, local_folder
+            ),
+            exist_ok=True
+        )
+
+        local_storage = os.path.join(root_dir, local_folder, f'{item}.json')
+
         if os.path.exists(local_storage):
             with open(local_storage, "r") as from_local:
                 data = json.load(from_local)
@@ -58,10 +78,9 @@ class ParserToGsheet:
             results = response.json().get('results', [])
             return [result.get('index') for result in results]
 
-
-    def parse_spells_from_api_to_gsheet(self, gsheetName=SPELLS_SHEET_NAME) -> str:
-        worksheet = self.sheet.worksheet(gsheetName)
-        all_spells = self._get_all(path='spells/')
+    def parse_spells(self, route: str = 'spells/') -> str:
+        worksheet = self._get_worksheet(SPELLS_SHEET_NAME)
+        all_spells = self._get_all(path=route)
 
         parsed_spells = []
         headers = [
@@ -78,7 +97,7 @@ class ParserToGsheet:
             i = 1
             for spell in all_spells:
                 print(f"parsing {i} of {len(all_spells)}: {spell}")
-                spell_data = self._get_item(item=spell, local_folder='spells', api_route='spell/')
+                spell_data = self._get_item(item=spell, local_folder='spells', api_route=route)
                 name = spell_data.get('name', f"failed to parse: {spell}")
                 description = '\n'.join(spell_data.get('desc', []))
                 higher_level = '\n'.join(spell_data.get('higher_level', []))
@@ -178,7 +197,7 @@ class ParserToGsheet:
             return 'jobs done'
 
     def parse_spell_library_json(self, path) -> str:
-        worksheet = self.sheet.worksheet('Spells from Spell Library Json')
+        worksheet = self._get_worksheet('Spells from Spell Library Json')
         parsed_spells = [[
             'name', 'description', 'range', 'components',
             'material', 'ritual',
@@ -231,10 +250,10 @@ class ParserToGsheet:
         worksheet.append_rows(parsed_spells)
         return 'jobs done'
 
-    def parse_classes_from_api_to_gsheet(self) -> str:
-        worksheet = self.sheet.worksheet(CLASS_SHEET_NAME)
+    def parse_classes(self, route: str = 'classes/') -> str:
+        worksheet = self._get_worksheet(CLASS_SHEET_NAME)
 
-        all_classes = self._get_all('classes/')
+        all_classes = self._get_all(route)
         all_skills = self._get_all('skills/')
         if len(all_classes) and len(all_skills) > 0:
 
@@ -255,7 +274,7 @@ class ParserToGsheet:
 
                 print(f'processing {class_}...', end='')
 
-                class_details = self._get_item(item=class_, local_folder='classes', api_route='classes/')
+                class_details = self._get_item(item=class_, local_folder='classes', api_route=route)
                 name = class_details.get('name')
                 hit_die = class_details.get('hit_die')
                 proficiencies_indices = ', '.join([proficiency.get('index') for proficiency in class_details.get('proficiencies', [])])
@@ -278,7 +297,7 @@ class ParserToGsheet:
                     proficiency_options.get(skill, False) for skill in all_skills
                 ]
                 saving_throws = ', '.join([st.get('name') for st in class_details.get('saving_throws', [])])
-                class_levels_response = self._request(path=f'classes/{class_}/levels')
+                class_levels_response = self._request(path=f'{route + class_}/levels')
                 if class_levels_response.ok:
                     class_levels = class_levels_response.json()
                     for level in class_levels:
@@ -311,8 +330,8 @@ class ParserToGsheet:
             return 'jobs done'
         return f'failed to receive {" ".join([name for name, lst in zip(["all_skills", "all_classes"], [all_skills, all_classes]) if len(lst) == 0 ])}'
 
-    def parse_races_from_api_to_gsheet(self) -> str:
-        worksheet = self.sheet.worksheet(RACES_SHEET_NAME)
+    def parse_races(self, route: str = 'races/') -> str:
+        worksheet = self._get_worksheet(RACES_SHEET_NAME)
         abilities_list = ['STR', 'DEX', 'CON', 'WIS', 'INT', 'CHA']
         headers = [
             'index', 'name', 'speed'
@@ -326,13 +345,13 @@ class ParserToGsheet:
         ])
 
         parsed_data = [headers]
-        all_races = self._get_all('races/')
+        all_races = self._get_all(route)
         if len(all_races) > 0:
             for race in all_races:
 
                 print(f'collecting {race} data')
 
-                race_details = self._get_item(item=race, local_folder='races', api_route='races/')
+                race_details = self._get_item(item=race, local_folder='races', api_route=route)
 
                 name = race_details.get('name')
                 speed = race_details.get('speed')
@@ -367,19 +386,19 @@ class ParserToGsheet:
             return 'jobs done'
         return 'failed to receive races list'
 
-    def parse_features_from_api_to_gsheet(self) -> str:
-        worksheet = self.sheet.worksheet(FEATURES_SHEET_NAME)
+    def parse_features(self, route: str = 'features/') -> str:
+        worksheet = self._get_worksheet(FEATURES_SHEET_NAME)
         headers = [
             'index', 'name', 'class_index', 'description', 'level'
         ]
         parsed_data = [headers]
-        all_features = self._get_all('features/')
+        all_features = self._get_all(route)
         if len(all_features) > 0:
             for feature in all_features:
 
                 print(f'processing {feature}')
 
-                feature_data = self._get_item(item=feature, local_folder='features', api_route='features/')
+                feature_data = self._get_item(item=feature, local_folder='features', api_route=route)
                 name = feature_data.get('name')
                 class_index = feature_data.get('class', {}).get('index')
                 desc = '\n'.join(feature_data.get('desc', []))
@@ -393,8 +412,8 @@ class ParserToGsheet:
             return 'jobs done'
         return 'failed to get all features'
 
-    def parse_traits_from_api_to_gsheet(self):
-        worksheet = self.sheet.worksheet(TRAITS_SHEET_NAME)
+    def parse_traits(self, route: str = 'traits/'):
+        worksheet = self._get_worksheet(TRAITS_SHEET_NAME)
         headers = [
             'index', 'name', 'description', 'races_indices', 'proficiencies_indices', 'proficiencies_names',
             'damage_type', 'area_of_effect_type', 'area_of_effect_size', 'usage_times', 'dc', 'dc_success'
@@ -402,13 +421,13 @@ class ParserToGsheet:
         headers.extend([f'damage_at_{lvl}' for lvl in range(1, 21)])
 
         parsed_data = [headers]
-        all_traits = self._get_all('traits/')
+        all_traits = self._get_all(route)
         if len(all_traits) > 0:
             for trait in all_traits:
 
                 print(f'processing {trait}')
 
-                trait_data = self._get_item(item=trait, local_folder='traits', api_route='traits/')
+                trait_data = self._get_item(item=trait, local_folder='traits', api_route=route)
                 name = trait_data.get('name')
                 desc = '\n'.join(trait_data.get('desc', []))
                 races = ', '.join([race.get('index') for race in
@@ -443,7 +462,6 @@ class ParserToGsheet:
                 row = [trait, name, desc, races, profficiencies_indices, profficiencies_names, damage_type, area_of_effect_type,
                        area_of_effect_size, usage_times, dc, dc_success]
                 row.extend(damage_at_levels)
-                print(len(row), len(headers))
 
                 parsed_data.append(row)
             worksheet.clear()
@@ -451,3 +469,7 @@ class ParserToGsheet:
             return 'jobs done'
 
         return 'failed to get all traits'
+
+    def parse_proficiencies(self, route: str ='proficiencies/'):
+        worksheet = self._get_worksheet(PROFICIENCIES_SHEET_NAME)
+        all_proficiencies = self._get_all(route)
