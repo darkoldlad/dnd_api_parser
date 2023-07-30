@@ -5,4 +5,4 @@ venv
 **/.DS_Store
 __pycache__
 output.sql
-DnD entities data - Spells.csv
+csv

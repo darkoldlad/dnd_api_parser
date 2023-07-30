@@ -185,12 +185,12 @@ class ParserToGsheet:
         return 'failed to get spells list'
 
     @staticmethod
-    def parse_csv_to_sql_file(path_to_csv: str) -> str:
+    def parse_csv_to_sql_file(path_to_csv: str, table_name: str, dataset: str = 'core') -> str:
         with open(path_to_csv, newline='') as csv_file:
             csv_reader = csv.reader(csv_file)
             headers = next(csv_reader)
             with open('output.sql', 'w') as output:
-                print(f"INSERT INTO public.spells ({', '.join(headers)}) \nVALUES", file=output, end='\n')
+                print(f"INSERT INTO {dataset}.{table_name} ({', '.join(headers)}) \nVALUES", file=output, end='\n')
             for row in csv_reader:
                 row_without_double_quotation = list(
                     map(
@@ -271,7 +271,7 @@ class ParserToGsheet:
 
             headers = [
                'index', 'name', 'hit_die', 'proficiency_skills_description', 'proficiency_skills_choose', 'possible_skill',
-                'saving_throws', 'level', 'ability_score_bonuses', 'prof_bonus', 'features_names', 'cantrips'
+                'saving_throws', 'level', 'ability_score_bonuses', 'proficiency_bonus', 'features_names', 'is_caster', 'cantrips'
             ]
             headers.extend([
                 f'spell_slots_level_{i}'
@@ -308,6 +308,7 @@ class ParserToGsheet:
                             level.get('spellcasting', {}).get(f'spell_slots_level_{i}')
                             for i in range(1, 10)
                         ])
+                        is_caster = any(level for level in spellcasting_list)
                         ability_score_bonuses = level.get('ability_score_bonuses')
                         prof_bonus = level.get('prof_bonus')
 
@@ -325,7 +326,7 @@ class ParserToGsheet:
                                     class_, name, hit_die, proficiency_skills_description,
                                     proficiency_skills_choose, possible_skill,
                                     saving_throws, class_level, ability_score_bonuses, prof_bonus,
-                                    features_names]
+                                    features_names, is_caster]
                                 row.extend(spellcasting_list)
                                 rows.append(row)
 
@@ -335,7 +336,7 @@ class ParserToGsheet:
                                 class_, name, hit_die, proficiency_skills_description,
                                 proficiency_skills_choose, possible_skill,
                             saving_throws, class_level, ability_score_bonuses, prof_bonus,
-                                        features_names]
+                                        features_names, is_caster]
                             row.extend(spellcasting_list)
                             rows.append(row)
             worksheet.clear()
@@ -562,7 +563,7 @@ class ParserToGsheet:
         headers.extend([
             f'{ability}_mod' for ability in abilities_list
         ])
-        headers.extend(['description', 'race_index', 'traits', 'proficiencies'])
+        headers.extend(['description', 'race_index', 'traits_names', 'proficiencies_names'])
         rows = [headers]
         all_subraces = self._get_all(route)
 
