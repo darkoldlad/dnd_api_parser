@@ -11,7 +11,7 @@ from enum import Enum
 
 from config import GSPREAD_SCOPE, GSHEET_CREDENTIALS_PATH, URL_FOR_GSHEET, \
     SPELLS_SHEET_NAME, CLASS_SHEET_NAME, RACES_SHEET_NAME, FEATURES_SHEET_NAME, TRAITS_SHEET_NAME, SKILLS_SHEET_NAME, \
-    PROFICIENCIES_SHEET_NAME
+    PROFICIENCIES_SHEET_NAME, SUBRACES_SHEET_NAME
 
 
 class Methods(str, Enum):
@@ -22,6 +22,7 @@ class Methods(str, Enum):
     PARSE_FEATURES = 'parse_features'
     PARSE_PROFICIENCIES = 'parse_proficiencies'
     PARSE_SKILLS = 'parse_skills'
+    PARSE_SUBRACES = 'parse_subraces'
 
 
 class ParserToGsheet:
@@ -83,17 +84,17 @@ class ParserToGsheet:
                     json.dump(data, to_local)
         return data
 
-    def _get_all(self, path: str) -> Optional[List]:
-        response = self._request(path=path)
+    def _get_all(self, route: str) -> Optional[List]:
+        response = self._request(path=route)
         if response.ok:
             results = response.json().get('results', [])
             return [result.get('index') for result in results]
 
     def parse_spells(self, route: str = 'spells/') -> str:
         worksheet = self._get_worksheet(SPELLS_SHEET_NAME)
-        all_spells = self._get_all(path=route)
+        all_spells = self._get_all(route=route)
 
-        parsed_spells = []
+        rows = []
         headers = [
            'index', 'name', 'description', 'higher_level', 'range', 'components', 'material', 'area_of_effect_type', 'area_of_effect_size', 'ritual', 'duration', 'concentration', 'casting_time', 'level', 'attack_type', 'damage_type'
         ]
@@ -102,7 +103,7 @@ class ParserToGsheet:
         headers.extend([
             'school', 'bard', 'cleric', 'druid', 'fighter', 'monk', 'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'
         ])
-        parsed_spells.append(headers)
+        rows.append(headers)
 
         if len(all_spells) > 0:
             i = 1
@@ -175,11 +176,11 @@ class ParserToGsheet:
                     rogue, sorcerer, warlock, wizard
                 ])
 
-                parsed_spells.append(row)
+                rows.append(row)
                 i += 1
 
             worksheet.clear()
-            worksheet.append_rows(parsed_spells)
+            worksheet.append_rows(rows)
             return 'jobs done'
         return 'failed to get spells list'
 
@@ -209,7 +210,7 @@ class ParserToGsheet:
 
     def parse_spell_library_json(self, path) -> str:
         worksheet = self._get_worksheet('Spells from Spell Library Json')
-        parsed_spells = [[
+        rows = [[
             'name', 'description', 'range', 'components',
             'material', 'ritual',
             'duration', 'casting_time', 'level', 'school',
@@ -249,7 +250,7 @@ class ParserToGsheet:
             subclass_only = ', '.join([class_.split(" ")[0].lower() for class_ in spell.get('Classes', []) if " (" in class_ and all_classes.count(class_.split(" ")[0].lower()) == 1])
             subclasses_list = ', '.join([re.sub(r'[()]', '',class_.split(" ")[1]).lower() for class_ in spell.get('Classes', []) if " (" in class_ and all_classes.count(class_.split(" ")[0].lower()) == 1])
             source = spell.get('Source')
-            parsed_spells.append(
+            rows.append(
                 [
                     name, description, range, components, material, ritual, duration, casting_time, level, school,
                     bard, cleric, druid,
@@ -258,7 +259,7 @@ class ParserToGsheet:
                 ]
             )
         worksheet.clear()
-        worksheet.append_rows(parsed_spells)
+        worksheet.append_rows(rows)
         return 'jobs done'
 
     def parse_classes(self, route: str = 'classes/') -> str:
@@ -276,7 +277,7 @@ class ParserToGsheet:
                 f'spell_slots_level_{i}'
                             for i in range(1, 10)
             ])
-            parsed_classes = [headers]
+            rows = [headers]
 
             for class_ in all_classes:
 
@@ -326,7 +327,7 @@ class ParserToGsheet:
                                     saving_throws, class_level, ability_score_bonuses, prof_bonus,
                                     features_names]
                                 row.extend(spellcasting_list)
-                                parsed_classes.append(row)
+                                rows.append(row)
 
                         else:
                             print(f'processing {class_}...level {class_level}', end='\n')
@@ -336,9 +337,9 @@ class ParserToGsheet:
                             saving_throws, class_level, ability_score_bonuses, prof_bonus,
                                         features_names]
                             row.extend(spellcasting_list)
-                            parsed_classes.append(row)
+                            rows.append(row)
             worksheet.clear()
-            worksheet.append_rows(parsed_classes)
+            worksheet.append_rows(rows)
             return 'jobs done'
         return 'failed to receive all classes'
 
@@ -356,7 +357,7 @@ class ParserToGsheet:
             'proficiencies_names', 'languages', 'language_desc', 'traits_names'
         ])
 
-        parsed_data = [headers]
+        rows = [headers]
 
         all_races = self._get_all(route)
 
@@ -394,9 +395,9 @@ class ParserToGsheet:
                 row.extend([alignment, age, size, size_description,
             proficiencies_names, languages, language_desc, traits_names])
 
-                parsed_data.append(row)
+                rows.append(row)
             worksheet.clear()
-            worksheet.append_rows(parsed_data)
+            worksheet.append_rows(rows)
             return 'jobs done'
         return 'failed to receive races list'
 
@@ -405,7 +406,7 @@ class ParserToGsheet:
         headers = [
             'index', 'name', 'class_index', 'description', 'level'
         ]
-        parsed_data = [headers]
+        rows = [headers]
 
         all_features = self._get_all(route)
 
@@ -422,20 +423,20 @@ class ParserToGsheet:
                 row = [
                     feature, name, class_index, desc, level
                 ]
-                parsed_data.append(row)
+                rows.append(row)
             worksheet.clear()
-            worksheet.append_rows(parsed_data)
+            worksheet.append_rows(rows)
             return 'jobs done'
         return 'failed to get all features'
 
     def parse_traits(self, route: str = 'traits/') -> str:
         worksheet = self._get_worksheet(TRAITS_SHEET_NAME)
         headers = [
-            'index', 'name', 'description', 'race_index', 'proficiency_index', 'is_damage',
+            'index', 'name', 'description', 'race_index', 'subrace_index', 'proficiency_index', 'is_damage',
             'damage_type', 'area_of_effect_type', 'area_of_effect_size', 'usage_times', 'dc', 'dc_success', 'level', 'damage'
         ]
 
-        parsed_data = [headers]
+        rows = [headers]
 
         all_traits = self._get_all(route)
 
@@ -448,46 +449,49 @@ class ParserToGsheet:
                 name = trait_data.get('name')
                 desc = '\n'.join(trait_data.get('desc', []))
                 race_indices = trait_data.get('races', []) if len(trait_data.get('races', [])) > 0 else [{'index':''}]
+                subrace_indices = trait_data.get('subraces', []) if len(trait_data.get('subraces', [])) > 0 else [{'index': ''}]
                 proficiencies_indices = trait_data.get('proficiencies', []) if len(trait_data.get('proficiencies', [])) > 0 else [{'index':''}]
 
                 for race in race_indices:
                     race_index=race.get('index')
-                    for proficiency in proficiencies_indices:
-                        proficiency_index = proficiency.get('index')
-                        trait_specific = trait_data.get('trait_specific', {})
-                        damage_type = trait_specific.get('damage_type',{}).get('name')
-                        area_of_effect_type = trait_specific.get('breath_weapon',{}).get('area_of_effect',{}).get('type')
-                        area_of_effect_size = trait_specific.get('breath_weapon',
-                                                                 {}).get(
-                            'area_of_effect', {}).get('size')
-                        usage_times = trait_specific.get('breath_weapon',{}).get('usage',{}).get('times')
-                        dc = trait_specific.get('breath_weapon',{}).get('dc',{}).get('dc_type',{}).get('name')
-                        dc_success = trait_specific.get('breath_weapon',{}).get('dc',{}).get('success_type')
-                        damage_data = trait_specific.get('breath_weapon',{}).get('damage',[])
+                    for subrace in subrace_indices:
+                        subrace_index = subrace.get('index')
+                        for proficiency in proficiencies_indices:
+                            proficiency_index = proficiency.get('index')
+                            trait_specific = trait_data.get('trait_specific', {})
+                            damage_type = trait_specific.get('damage_type',{}).get('name')
+                            area_of_effect_type = trait_specific.get('breath_weapon',{}).get('area_of_effect',{}).get('type')
+                            area_of_effect_size = trait_specific.get('breath_weapon',
+                                                                     {}).get(
+                                'area_of_effect', {}).get('size')
+                            usage_times = trait_specific.get('breath_weapon',{}).get('usage',{}).get('times')
+                            dc = trait_specific.get('breath_weapon',{}).get('dc',{}).get('dc_type',{}).get('name')
+                            dc_success = trait_specific.get('breath_weapon',{}).get('dc',{}).get('success_type')
+                            damage_data = trait_specific.get('breath_weapon',{}).get('damage',[])
 
-                        is_damage = True if len(damage_data) > 0 else False
-                        prev_damage = ''
-                        damage = ''
-                        level = ''
-                        if is_damage:
-                            for lvl in range(1,21):
-                                level = lvl
-                                damage_at_level = damage_data[0].get('damage_at_character_level',{}).get(str(lvl))
-                                if damage_at_level:
-                                    damage = damage_at_level
-                                    prev_damage = damage_at_level
-                                elif prev_damage:
-                                    damage = prev_damage
+                            is_damage = True if len(damage_data) > 0 else False
+                            prev_damage = ''
+                            damage = ''
+                            level = ''
+                            if is_damage:
+                                for lvl in range(1,21):
+                                    level = lvl
+                                    damage_at_level = damage_data[0].get('damage_at_character_level',{}).get(str(lvl))
+                                    if damage_at_level:
+                                        damage = damage_at_level
+                                        prev_damage = damage_at_level
+                                    elif prev_damage:
+                                        damage = prev_damage
 
-                                row = [trait, name, desc, race_index, proficiency_index, is_damage, damage_type, area_of_effect_type,
+                                    row = [trait, name, desc, race_index, subrace_index, proficiency_index, is_damage, damage_type, area_of_effect_type,
+                                           area_of_effect_size, usage_times, dc, dc_success, level, damage, ]
+                                    rows.append(row)
+                            else:
+                                row = [trait, name, desc, race_index, subrace_index, proficiency_index, is_damage, damage_type, area_of_effect_type,
                                        area_of_effect_size, usage_times, dc, dc_success, level, damage, ]
-                                parsed_data.append(row)
-                        else:
-                            row = [trait, name, desc, race_index, proficiency_index, is_damage, damage_type, area_of_effect_type,
-                                   area_of_effect_size, usage_times, dc, dc_success, level, damage, ]
-                            parsed_data.append(row)
+                                rows.append(row)
             worksheet.clear()
-            worksheet.append_rows(parsed_data)
+            worksheet.append_rows(rows)
             return 'jobs done'
 
         return 'failed to get all traits'
@@ -496,7 +500,7 @@ class ParserToGsheet:
         worksheet = self._get_worksheet(PROFICIENCIES_SHEET_NAME)
 
         headers = ['index', 'name', 'reference_type', 'class_index', 'race_index', 'reference_index', 'reference_url']
-        parsed_data = [headers]
+        rows = [headers]
 
         all_proficiencies = self._get_all(route)
 
@@ -519,9 +523,9 @@ class ParserToGsheet:
                         row = [
                             proficiency, name, reference_type, class_index, race_index, reference_index, reference_url
                         ]
-                        parsed_data.append(row)
+                        rows.append(row)
             worksheet.clear()
-            worksheet.append_rows(parsed_data)
+            worksheet.append_rows(rows)
             return 'jobs done'
 
         return 'failed to get all proficiencies'
@@ -529,10 +533,9 @@ class ParserToGsheet:
     def parse_skills(self, route: str = 'skills/') -> str:
         worksheet = self._get_worksheet(SKILLS_SHEET_NAME)
         headers = ['index', 'name', 'ability_score', 'desc']
-        parsed_data = [headers]
+        rows = [headers]
 
         all_skills = self._get_all(route)
-
 
         if len(all_skills) > 0:
             for skill in all_skills:
@@ -545,16 +548,53 @@ class ParserToGsheet:
                 description = '\n'.join(skill_data.get('desc', []))
 
                 row = [skill, name, ability_score, description]
-                parsed_data.append(row)
+                rows.append(row)
             worksheet.clear()
-            worksheet.append_rows(parsed_data)
+            worksheet.append_rows(rows)
             return 'jobs done'
 
         return 'failed to get all skills'
 
+    def parse_subraces(self, route: str = 'subraces/') -> str:
+        worksheet = self._get_worksheet(SUBRACES_SHEET_NAME)
+        abilities_list = ['STR', 'DEX', 'CON', 'WIS', 'INT', 'CHA']
+        headers = ['index', 'name']
+        headers.extend([
+            f'{ability}_mod' for ability in abilities_list
+        ])
+        headers.extend(['description', 'race_index', 'traits', 'proficiencies'])
+        rows = [headers]
+        all_subraces = self._get_all(route)
+
+        if len(all_subraces) > 0:
+            for subrace in all_subraces:
+
+                print(f'processing {subrace}')
+
+                subrace_data = self._get_item(item=subrace, local_folder='subraces', api_route=route)
+                name = subrace_data.get('name')
+                ability_bonuses = subrace_data.get('ability_bonuses', [{}])
+                all_abilities = {
+                    ability_bonus.get('ability_score', {}).get('name'): ability_bonus.get('bonus')
+                    for ability_bonus in ability_bonuses
+                }
+                ability_modifiers = [all_abilities.get(ability) for ability in abilities_list]
+                description = subrace_data.get('desc')
+                race_index = subrace_data.get('race', {}).get('index')
+                traits = ', '.join([trait.get('name') for trait in subrace_data.get('racial_traits', [{}])])
+                proficiencies = ', '.join([prof.get('name') for prof in subrace_data.get('starting_proficiencies', [{}])])
+                row = [subrace, name]
+                row.extend(ability_modifiers)
+                row.extend([description, race_index, traits, proficiencies])
+                rows.append(row)
+            worksheet.clear()
+            worksheet.append_rows(rows)
+            return 'jobs done'
+        return 'failed to get all subraces'
+
     def parse_all(self, exceptions: Union[List[Methods], None] = None):
 
-        exceptions_const = ['__init__' ,'parse_all', '_request', '_get_all', '_get_item', '_get_worksheet', 'parse_csv_to_sql_file',
+        exceptions_const = ['__init__', 'parse_all', '_request', '_get_all', '_get_item', '_get_worksheet', 'parse_csv_to_sql_file',
                             'parse_spell_library_json']
         all_methods = [name for name, method in inspect.getmembers(self, inspect.ismethod) if name not in exceptions_const]
 
