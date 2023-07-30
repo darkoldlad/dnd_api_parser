@@ -185,26 +185,31 @@ class ParserToGsheet:
         return 'failed to get spells list'
 
     @staticmethod
-    def parse_csv_to_sql_file(path_to_csv: str, table_name: str, dataset: str = 'core') -> str:
+    def csv_to_sql(path_to_csv: str, table_name: str, dataset: str = 'core') -> str:
         with open(path_to_csv, newline='') as csv_file:
             csv_reader = csv.reader(csv_file)
+
             headers = next(csv_reader)
+            rows = list(csv_reader)
+
             with open('output.sql', 'w') as output:
                 print(f"INSERT INTO {dataset}.{table_name} ({', '.join(headers)}) \nVALUES", file=output, end='\n')
-            for row in csv_reader:
-                row_without_double_quotation = list(
+            for row in rows:
+                row_with_correct_single_quotation = list(
                     map(
-                        lambda value: value.replace('"', "'"), row
+                        lambda value: value.replace("'", "''"), row
                     )
                 )
+
+
                 sql_row_values = list(
                     map(
-                        lambda value: "null" if value == "" else value if value in ("TRUE", "FALSE") or value.isdigit() else f'"{str(value)}"',
-                        row_without_double_quotation
+                        lambda value: "null" if value == "" else value if value in ("TRUE", "FALSE") or value.isdigit() else f"'{str(value)}'",
+                        row_with_correct_single_quotation
                     )
                 )
                 with open('output.sql', 'a') as output:
-                    print(f'({", ".join(sql_row_values)})', end=",\n",
+                    print(f'({", ".join(sql_row_values)})', end=",\n" if rows.index(row) != len(rows)-1 else ';',
                           file=output)
             return 'jobs done'
 
@@ -533,7 +538,7 @@ class ParserToGsheet:
 
     def parse_skills(self, route: str = 'skills/') -> str:
         worksheet = self._get_worksheet(SKILLS_SHEET_NAME)
-        headers = ['index', 'name', 'ability_score', 'desc']
+        headers = ['index', 'name', 'ability_score', 'description']
         rows = [headers]
 
         all_skills = self._get_all(route)
