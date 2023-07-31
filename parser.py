@@ -254,7 +254,7 @@ class ParserToGsheet:
 
             headers = [
                'index', 'name', 'hit_die', 'proficiency_skills_description', 'proficiency_skills_choose', 'possible_skill',
-                'saving_throws', 'level', 'ability_score_bonuses', 'proficiency_bonus', 'features_names', 'is_caster', 'cantrips'
+                'saving_throws', 'level', 'ability_score_bonuses', 'ability_score_bonuses_total', 'proficiency_bonus', 'features_names', 'is_caster', 'cantrips'
             ]
             headers.extend([
                 f'spell_slots_level_{i}'
@@ -289,7 +289,9 @@ class ParserToGsheet:
                         in available_spells for i in range(1, 10)
                     ])
                     is_caster = any(spell for spell in spells)
+                    prev_ability_score_bonus = 0
                     for level in class_levels:
+
                         class_level = level.get('level')
                         possible_skill = ''
 
@@ -299,7 +301,13 @@ class ParserToGsheet:
                             for i in range(1, 10)
                         ])
 
-                        ability_score_bonuses = level.get('ability_score_bonuses')
+                        level_ability_score_bonus = level.get('ability_score_bonuses')
+                        ability_score_bonuses = level_ability_score_bonus - prev_ability_score_bonus
+
+                        if level_ability_score_bonus > prev_ability_score_bonus:
+                            prev_ability_score_bonus = level_ability_score_bonus
+
+
                         prof_bonus = level.get('prof_bonus')
 
                         features_names = ', '.join([feature.get('name') for feature in level.get('features', [])])
@@ -315,7 +323,7 @@ class ParserToGsheet:
                                 row = [
                                     class_, name, hit_die, proficiency_skills_description,
                                     proficiency_skills_choose, possible_skill,
-                                    saving_throws, class_level, ability_score_bonuses, prof_bonus,
+                                    saving_throws, class_level, ability_score_bonuses, level_ability_score_bonus, prof_bonus,
                                     features_names, is_caster]
                                 row.extend(spellcasting_list)
                                 rows.append(row)
@@ -325,7 +333,7 @@ class ParserToGsheet:
                             row = [
                                 class_, name, hit_die, proficiency_skills_description,
                                 proficiency_skills_choose, possible_skill,
-                            saving_throws, class_level, ability_score_bonuses, prof_bonus,
+                            saving_throws, class_level, ability_score_bonuses, level_ability_score_bonus, prof_bonus,
                                         features_names, is_caster]
                             row.extend(spellcasting_list)
                             rows.append(row)

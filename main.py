@@ -5,7 +5,7 @@ def main():
     parser = ParserToGsheet()
 
     parser.parse_all(exceptions=[
-        # Methods.PARSE_SPELLS,
+        Methods.PARSE_SPELLS,
         # Methods.PARSE_CLASSES,
         Methods.PARSE_RACES,
         Methods.PARSE_PROFICIENCIES,
