@@ -249,11 +249,11 @@ class ParserToGsheet:
         worksheet = self._get_worksheet(CLASS_SHEET_NAME)
 
         all_classes = self._get_all(route)
-
+        classes_skills = [['class_index', 'proficiency_skills_description', 'skills_choose', 'skill_index']]
         if len(all_classes) > 0:
 
             headers = [
-               'index', 'name', 'hit_die', 'proficiency_skills_description', 'proficiency_skills_choose', 'possible_skill',
+               'index', 'name', 'hit_die',
                 'saving_throws', 'level', 'ability_score_bonuses', 'ability_score_bonuses_total', 'proficiency_bonus', 'features_names', 'is_caster', 'cantrips'
             ]
             headers.extend([
@@ -279,7 +279,17 @@ class ParserToGsheet:
                 proficiency_skills_choose = proficiencies_skills[0].get('choose')
 
                 saving_throws = ', '.join([st.get('name') for st in class_details.get('saving_throws', [])])
+
+                possible_skills = proficiencies_skills[0].get('from', {}).get('options', [{}])
+
+                for skill in possible_skills:
+                    possible_skill = skill.get('item', {}).get('index', 'skill-').replace('skill-', '')
+                    classes_skills.append([
+                        class_, proficiency_skills_description, proficiency_skills_choose, possible_skill
+                    ])
+
                 class_levels_response = self._request(path=f'{route + class_}/levels')
+
                 if class_levels_response.ok:
                     class_levels = class_levels_response.json()
                     available_spells = [class_level.get('spellcasting', {}) for class_level in class_levels]
@@ -293,7 +303,6 @@ class ParserToGsheet:
                     for level in class_levels:
 
                         class_level = level.get('level')
-                        possible_skill = ''
 
                         spellcasting_list = [level.get('spellcasting', {}).get('cantrips_known')]
                         spellcasting_list.extend([
@@ -316,29 +325,20 @@ class ParserToGsheet:
 
                             print('level 1', end='\n')
 
-                            possible_skills = proficiencies_skills[0].get('from', {}).get('options', [{}])
-
-                            for skill in possible_skills:
-                                possible_skill = skill.get('item', {}).get('index', 'skill-').replace('skill-', '')
-                                row = [
-                                    class_, name, hit_die, proficiency_skills_description,
-                                    proficiency_skills_choose, possible_skill,
-                                    saving_throws, class_level, ability_score_bonuses, level_ability_score_bonus, prof_bonus,
-                                    features_names, is_caster]
-                                row.extend(spellcasting_list)
-                                rows.append(row)
-
                         else:
                             print(f'processing {class_}...level {class_level}', end='\n')
-                            row = [
-                                class_, name, hit_die, proficiency_skills_description,
-                                proficiency_skills_choose, possible_skill,
-                            saving_throws, class_level, ability_score_bonuses, level_ability_score_bonus, prof_bonus,
-                                        features_names, is_caster]
-                            row.extend(spellcasting_list)
-                            rows.append(row)
+                        row = [
+                            class_, name, hit_die, saving_throws, class_level, ability_score_bonuses, level_ability_score_bonus, prof_bonus,
+                                    features_names, is_caster]
+                        row.extend(spellcasting_list)
+                        rows.append(row)
             worksheet.clear()
             worksheet.append_rows(rows)
+
+            classes_skills_worksheet = self._get_worksheet('Classes_Skills')
+            classes_skills_worksheet.clear()
+            classes_skills_worksheet.append_rows(classes_skills)
+
             return 'jobs done'
         return 'failed to receive all classes'
 

@@ -1,0 +1,241 @@
+index,name,hit_die,saving_throws,level,ability_score_bonuses,ability_score_bonuses_total,proficiency_bonus,features_names,is_caster,cantrips,spell_slots_level_1,spell_slots_level_2,spell_slots_level_3,spell_slots_level_4,spell_slots_level_5,spell_slots_level_6,spell_slots_level_7,spell_slots_level_8,spell_slots_level_9
+barbarian,Barbarian,12,"STR, CON",1,0,0,2,"Rage, Unarmored Defense",FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",2,0,0,2,"Reckless Attack, Danger Sense",FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",3,0,0,2,Primal Path,FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",4,1,1,2,Ability Score Improvement,FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",5,0,1,3,"Extra Attack, Fast Movement",FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",6,0,1,3,,FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",7,0,1,3,Feral Instinct,FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",8,1,2,3,Ability Score Improvement,FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",9,0,2,4,Brutal Critical (1 die),FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",10,0,2,4,,FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",11,0,2,4,Relentless Rage,FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",12,1,3,4,Ability Score Improvement,FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",13,0,3,5,Brutal Critical (2 dice),FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",14,0,3,5,,FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",15,0,3,5,Persistent Rage,FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",16,1,4,5,Ability Score Improvement,FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",17,0,4,6,Brutal Critical (3 dice),FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",18,0,4,6,Indomitable Might,FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",19,1,5,6,Ability Score Improvement,FALSE,,,,,,,,,,
+barbarian,Barbarian,12,"STR, CON",20,0,5,6,Primal Champion,FALSE,,,,,,,,,,
+bard,Bard,8,"DEX, CHA",1,0,0,2,"Spellcasting: Bard, Bardic Inspiration (d6)",TRUE,2,2,0,0,0,0,0,0,0,0
+bard,Bard,8,"DEX, CHA",2,0,0,2,"Jack of All Trades, Song of Rest (d6)",TRUE,2,3,0,0,0,0,0,0,0,0
+bard,Bard,8,"DEX, CHA",3,0,0,2,"Expertise, Bard College",TRUE,2,4,2,0,0,0,0,0,0,0
+bard,Bard,8,"DEX, CHA",4,1,1,2,Ability Score Improvement,TRUE,3,4,3,0,0,0,0,0,0,0
+bard,Bard,8,"DEX, CHA",5,0,1,3,"Bardic Inspiration (d8), Font of Inspiration",TRUE,3,4,3,2,0,0,0,0,0,0
+bard,Bard,8,"DEX, CHA",6,0,1,3,Countercharm,TRUE,3,4,3,3,0,0,0,0,0,0
+bard,Bard,8,"DEX, CHA",7,0,1,3,,TRUE,3,4,3,3,1,0,0,0,0,0
+bard,Bard,8,"DEX, CHA",8,1,2,3,Ability Score Improvement,TRUE,3,4,3,3,2,0,0,0,0,0
+bard,Bard,8,"DEX, CHA",9,0,2,4,Song of Rest (d8),TRUE,3,4,3,3,3,1,0,0,0,0
+bard,Bard,8,"DEX, CHA",10,0,2,4,"Expertise, Bardic Inspiration (d10), Magical Secrets",TRUE,4,4,3,3,3,2,0,0,0,0
+bard,Bard,8,"DEX, CHA",11,0,2,4,,TRUE,4,4,3,3,3,2,1,0,0,0
+bard,Bard,8,"DEX, CHA",12,1,3,4,Ability Score Improvement,TRUE,4,4,3,3,3,2,1,0,0,0
+bard,Bard,8,"DEX, CHA",13,0,3,5,Song of Rest (d10),TRUE,4,4,3,3,3,2,1,1,0,0
+bard,Bard,8,"DEX, CHA",14,0,3,5,Magical Secrets,TRUE,4,4,3,3,3,2,1,1,0,0
+bard,Bard,8,"DEX, CHA",15,0,3,5,Bardic Inspiration (d12),TRUE,4,4,3,3,3,2,1,1,1,0
+bard,Bard,8,"DEX, CHA",16,1,4,5,Ability Score Improvement,TRUE,4,4,3,3,3,2,1,1,1,0
+bard,Bard,8,"DEX, CHA",17,0,4,6,Song of Rest (d12),TRUE,4,4,3,3,3,2,1,1,1,1
+bard,Bard,8,"DEX, CHA",18,0,4,6,Magical Secrets,TRUE,4,4,3,3,3,3,1,1,1,1
+bard,Bard,8,"DEX, CHA",19,1,5,6,Ability Score Improvement,TRUE,4,4,3,3,3,3,2,1,1,1
+bard,Bard,8,"DEX, CHA",20,0,5,6,Superior Inspiration,TRUE,4,4,3,3,3,3,2,2,1,1
+cleric,Cleric,8,"WIS, CHA",1,0,0,2,"Spellcasting: Cleric, Divine Domain, Domain Spells",TRUE,3,2,0,0,0,0,0,0,0,0
+cleric,Cleric,8,"WIS, CHA",2,0,0,2,"Channel Divinity (1/rest), Channel Divinity: Turn Undead",TRUE,3,3,0,0,0,0,0,0,0,0
+cleric,Cleric,8,"WIS, CHA",3,0,0,2,Domain Spells,TRUE,3,4,2,0,0,0,0,0,0,0
+cleric,Cleric,8,"WIS, CHA",4,1,1,2,Ability Score Improvement,TRUE,4,4,3,0,0,0,0,0,0,0
+cleric,Cleric,8,"WIS, CHA",5,0,1,3,"Domain Spells, Destroy Undead (CR 1/2 or below)",TRUE,4,4,3,2,0,0,0,0,0,0
+cleric,Cleric,8,"WIS, CHA",6,0,1,3,Channel Divinity (2/rest),TRUE,4,4,3,3,0,0,0,0,0,0
+cleric,Cleric,8,"WIS, CHA",7,0,1,3,Domain Spells,TRUE,4,4,3,3,1,0,0,0,0,0
+cleric,Cleric,8,"WIS, CHA",8,1,2,3,"Ability Score Improvement, Destroy Undead (CR 1 or below)",TRUE,4,4,3,3,2,0,0,0,0,0
+cleric,Cleric,8,"WIS, CHA",9,0,2,4,Domain Spells,TRUE,4,4,3,3,3,1,0,0,0,0
+cleric,Cleric,8,"WIS, CHA",10,0,2,4,Divine Intervention,TRUE,5,4,3,3,3,2,0,0,0,0
+cleric,Cleric,8,"WIS, CHA",11,0,2,4,Destroy Undead (CR 2 or below),TRUE,5,4,3,3,3,2,1,0,0,0
+cleric,Cleric,8,"WIS, CHA",12,1,3,4,Ability Score Improvement,TRUE,5,4,3,3,3,2,1,0,0,0
+cleric,Cleric,8,"WIS, CHA",13,0,3,5,,TRUE,5,4,3,3,3,2,1,1,0,0
+cleric,Cleric,8,"WIS, CHA",14,0,3,5,Destroy Undead (CR 3 or below),TRUE,5,4,3,3,3,2,1,1,0,0
+cleric,Cleric,8,"WIS, CHA",15,0,3,5,,TRUE,5,4,3,3,3,2,1,1,1,0
+cleric,Cleric,8,"WIS, CHA",16,1,4,5,Ability Score Improvement,TRUE,5,4,3,3,3,2,1,1,1,0
+cleric,Cleric,8,"WIS, CHA",17,0,4,6,Destroy Undead (CR 4 or below),TRUE,5,4,3,3,3,2,1,1,1,1
+cleric,Cleric,8,"WIS, CHA",18,0,4,6,Channel Divinity (3/rest),TRUE,5,4,3,3,3,3,1,1,1,1
+cleric,Cleric,8,"WIS, CHA",19,1,5,6,Ability Score Improvement,TRUE,5,4,3,3,3,3,2,1,1,1
+cleric,Cleric,8,"WIS, CHA",20,0,5,6,Divine Intervention Improvement,TRUE,5,4,3,3,3,3,2,2,1,1
+druid,Druid,8,"INT, WIS",1,0,0,2,"Spellcasting: Druid, Druidic",TRUE,2,2,0,0,0,0,0,0,0,0
+druid,Druid,8,"INT, WIS",2,0,0,2,"Wild Shape (CR 1/4 or below, no flying or swim speed), Druid Circle",TRUE,2,3,0,0,0,0,0,0,0,0
+druid,Druid,8,"INT, WIS",3,0,0,2,,TRUE,2,4,2,0,0,0,0,0,0,0
+druid,Druid,8,"INT, WIS",4,1,1,2,"Wild Shape (CR 1/2 or below, no flying speed), Ability Score Improvement",TRUE,3,4,3,0,0,0,0,0,0,0
+druid,Druid,8,"INT, WIS",5,0,1,3,,TRUE,3,4,3,2,0,0,0,0,0,0
+druid,Druid,8,"INT, WIS",6,0,1,3,,TRUE,3,4,3,3,0,0,0,0,0,0
+druid,Druid,8,"INT, WIS",7,0,1,3,,TRUE,3,4,3,3,1,0,0,0,0,0
+druid,Druid,8,"INT, WIS",8,1,2,3,"Wild Shape (CR 1 or below), Ability Score Improvement",TRUE,3,4,3,3,2,0,0,0,0,0
+druid,Druid,8,"INT, WIS",9,0,2,4,,TRUE,3,4,3,3,3,1,0,0,0,0
+druid,Druid,8,"INT, WIS",10,0,2,4,,TRUE,4,4,3,3,3,2,0,0,0,0
+druid,Druid,8,"INT, WIS",11,0,2,4,,TRUE,4,4,3,3,3,2,1,0,0,0
+druid,Druid,8,"INT, WIS",12,1,3,4,Ability Score Improvement,TRUE,4,4,3,3,3,2,1,0,0,0
+druid,Druid,8,"INT, WIS",13,0,3,5,,TRUE,4,4,3,3,3,2,1,1,0,0
+druid,Druid,8,"INT, WIS",14,0,3,5,,TRUE,4,4,3,3,3,2,1,1,0,0
+druid,Druid,8,"INT, WIS",15,0,3,5,,TRUE,4,4,3,3,3,2,1,1,1,0
+druid,Druid,8,"INT, WIS",16,1,4,5,Ability Score Improvement,TRUE,4,4,3,3,3,2,1,1,1,0
+druid,Druid,8,"INT, WIS",17,0,4,6,,TRUE,4,4,3,3,3,2,1,1,1,1
+druid,Druid,8,"INT, WIS",18,0,4,6,"Timeless Body, Beast Spells",TRUE,4,4,3,3,3,3,1,1,1,1
+druid,Druid,8,"INT, WIS",19,1,5,6,Ability Score Improvement,TRUE,4,4,3,3,3,3,2,1,1,1
+druid,Druid,8,"INT, WIS",20,0,5,6,Archdruid,TRUE,4,4,3,3,3,3,2,2,1,1
+fighter,Fighter,10,"STR, CON",1,0,0,2,"Fighting Style, Second Wind",FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",2,0,0,2,Action Surge (1 use),FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",3,0,0,2,Martial Archetype,FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",4,1,1,2,Ability Score Improvement,FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",5,0,1,3,Extra Attack,FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",6,1,2,3,Ability Score Improvement,FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",7,0,2,3,,FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",8,1,3,3,Ability Score Improvement,FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",9,0,3,4,Indomitable (1 use),FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",10,0,3,4,,FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",11,0,3,4,Extra Attack (2),FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",12,1,4,4,Ability Score Improvement,FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",13,0,4,5,Indomitable (2 uses),FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",14,1,5,5,Ability Score Improvement,FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",15,0,5,5,,FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",16,1,6,5,Ability Score Improvement,FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",17,0,6,6,"Action Surge (2 uses), Indomitable (3 uses)",FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",18,0,6,6,,FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",19,1,7,6,Ability Score Improvement,FALSE,,,,,,,,,,
+fighter,Fighter,10,"STR, CON",20,0,7,6,Extra Attack (3),FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",1,0,0,2,"Unarmored Defense, Martial Arts",FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",2,0,0,2,"Ki, Flurry of Blows, Patient Defense, Step of the Wind, Unarmored Movement",FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",3,0,0,2,"Monastic Tradition, Deflect Missiles",FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",4,1,1,2,"Ability Score Improvement, Slow Fall",FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",5,0,1,3,"Extra Attack, Stunning Strike",FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",6,0,1,3,Ki Empowered Strikes,FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",7,0,1,3,"Evasion, Stillness of Mind",FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",8,1,2,3,Ability Score Improvement,FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",9,0,2,4,Unarmored Movement,FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",10,0,2,4,Purity of Body,FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",11,0,2,4,,FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",12,1,3,4,Ability Score Improvement,FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",13,0,3,5,Tongue of the Sun and Moon,FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",14,0,3,5,Diamond Soul,FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",15,0,3,5,Timeless Body,FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",16,1,4,5,Ability Score Improvement,FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",17,0,4,6,,FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",18,0,4,6,Empty Body,FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",19,1,5,6,Ability Score Improvement,FALSE,,,,,,,,,,
+monk,Monk,8,"STR, DEX",20,0,5,6,Perfect Self,FALSE,,,,,,,,,,
+paladin,Paladin,10,"WIS, CHA",1,0,0,2,"Divine Sense, Lay on Hands",TRUE,,0,0,0,0,0,,,,
+paladin,Paladin,10,"WIS, CHA",2,0,0,2,"Fighting Style, Spellcasting: Paladin, Divine Smite",TRUE,,2,0,0,0,0,,,,
+paladin,Paladin,10,"WIS, CHA",3,0,0,2,"Divine Health, Sacred Oath, Oath Spells, Channel Divinity",TRUE,,3,0,0,0,0,,,,
+paladin,Paladin,10,"WIS, CHA",4,1,1,2,Ability Score Improvement,TRUE,,3,0,0,0,0,,,,
+paladin,Paladin,10,"WIS, CHA",5,0,1,3,Extra Attack,TRUE,,4,2,0,0,0,,,,
+paladin,Paladin,10,"WIS, CHA",6,0,1,3,Aura of Protection,TRUE,,4,2,0,0,0,,,,
+paladin,Paladin,10,"WIS, CHA",7,0,1,3,,TRUE,,4,3,0,0,0,,,,
+paladin,Paladin,10,"WIS, CHA",8,1,2,3,Ability Score Improvement,TRUE,,4,3,0,0,0,,,,
+paladin,Paladin,10,"WIS, CHA",9,0,2,4,,TRUE,,4,3,2,0,0,,,,
+paladin,Paladin,10,"WIS, CHA",10,0,2,4,Aura of Courage,TRUE,,4,3,2,0,0,,,,
+paladin,Paladin,10,"WIS, CHA",11,0,2,4,Improved Divine Smite,TRUE,,4,3,3,0,0,,,,
+paladin,Paladin,10,"WIS, CHA",12,1,3,4,Ability Score Improvement,TRUE,,4,3,3,0,0,,,,
+paladin,Paladin,10,"WIS, CHA",13,0,3,5,,TRUE,,4,3,3,1,0,,,,
+paladin,Paladin,10,"WIS, CHA",14,0,3,5,Cleansing Touch,TRUE,,4,3,3,1,0,,,,
+paladin,Paladin,10,"WIS, CHA",15,0,3,5,,TRUE,,4,3,3,2,0,,,,
+paladin,Paladin,10,"WIS, CHA",16,1,4,5,Ability Score Improvement,TRUE,,4,3,3,2,0,,,,
+paladin,Paladin,10,"WIS, CHA",17,0,4,6,,TRUE,,4,3,3,3,1,,,,
+paladin,Paladin,10,"WIS, CHA",18,0,4,6,Aura improvements,TRUE,,4,3,3,3,1,,,,
+paladin,Paladin,10,"WIS, CHA",19,1,5,6,Ability Score Improvement,TRUE,,4,3,3,3,2,,,,
+paladin,Paladin,10,"WIS, CHA",20,0,5,6,,TRUE,,4,3,3,3,2,,,,
+ranger,Ranger,10,"STR, DEX",1,0,0,2,"Favored Enemy (1 type), Natural Explorer (1 terrain type)",TRUE,,0,0,0,0,0,,,,
+ranger,Ranger,10,"STR, DEX",2,0,0,2,"Fighting Style, Spellcasting: Ranger",TRUE,,2,0,0,0,0,,,,
+ranger,Ranger,10,"STR, DEX",3,0,0,2,"Ranger Archetype, Primeval Awareness",TRUE,,3,0,0,0,0,,,,
+ranger,Ranger,10,"STR, DEX",4,1,1,2,Ability Score Improvement,TRUE,,3,0,0,0,0,,,,
+ranger,Ranger,10,"STR, DEX",5,0,1,3,Extra Attack,TRUE,,4,2,0,0,0,,,,
+ranger,Ranger,10,"STR, DEX",6,0,1,3,"Favored Enemy (2 types), Natural Explorer (2 terrain types)",TRUE,,4,2,0,0,0,,,,
+ranger,Ranger,10,"STR, DEX",7,0,1,3,,TRUE,,4,3,0,0,0,,,,
+ranger,Ranger,10,"STR, DEX",8,1,2,3,"Ability Score Improvement, Land's Stride",TRUE,,4,3,0,0,0,,,,
+ranger,Ranger,10,"STR, DEX",9,0,2,4,,TRUE,,4,3,2,0,0,,,,
+ranger,Ranger,10,"STR, DEX",10,0,2,4,"Natural Explorer (3 terrain types), Hide in Plain Sight",TRUE,,4,3,2,0,0,,,,
+ranger,Ranger,10,"STR, DEX",11,0,2,4,,TRUE,,4,3,3,0,0,,,,
+ranger,Ranger,10,"STR, DEX",12,1,3,4,Ability Score Improvement,TRUE,,4,3,3,0,0,,,,
+ranger,Ranger,10,"STR, DEX",13,0,3,5,,TRUE,,4,3,3,1,0,,,,
+ranger,Ranger,10,"STR, DEX",14,0,3,5,"Favored Enemy (3 enemies), Vanish",TRUE,,4,3,3,1,0,,,,
+ranger,Ranger,10,"STR, DEX",15,0,3,5,,TRUE,,4,3,3,2,0,,,,
+ranger,Ranger,10,"STR, DEX",16,1,4,5,Ability Score Improvement,TRUE,,4,3,3,2,0,,,,
+ranger,Ranger,10,"STR, DEX",17,0,4,6,,TRUE,,4,3,3,3,1,,,,
+ranger,Ranger,10,"STR, DEX",18,0,4,6,Feral Senses,TRUE,,4,3,3,3,1,,,,
+ranger,Ranger,10,"STR, DEX",19,1,5,6,Ability Score Improvement,TRUE,,4,3,3,3,2,,,,
+ranger,Ranger,10,"STR, DEX",20,0,5,6,Foe Slayer,TRUE,,4,3,3,3,2,,,,
+rogue,Rogue,8,"DEX, INT",1,0,0,2,"Expertise, Sneak Attack, Thieves' Cant",FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",2,0,0,2,Cunning Action,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",3,0,0,2,Roguish Archetype,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",4,1,1,2,Ability Score Improvement,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",5,0,1,3,Uncanny Dodge,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",6,0,1,3,Expertise,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",7,0,1,3,Evasion,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",8,1,2,3,Ability Score Improvement,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",9,0,2,4,,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",10,1,3,4,Ability Score Improvement,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",11,-1,2,4,Reliable Talent,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",12,1,4,4,Ability Score Improvement,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",13,-1,3,5,,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",14,-1,3,5,Blindsense,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",15,-1,3,5,Slippery Mind,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",16,1,5,5,Ability Score Improvement,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",17,-1,4,6,,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",18,-1,4,6,Elusive,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",19,1,6,6,Ability Score Improvement,FALSE,,,,,,,,,,
+rogue,Rogue,8,"DEX, INT",20,-1,5,6,Stroke of Luck,FALSE,,,,,,,,,,
+sorcerer,Sorcerer,6,"CON, CHA",1,0,0,2,"Spellcasting: Sorcerer, Sorcerous Origin",TRUE,4,2,0,0,0,0,0,0,0,0
+sorcerer,Sorcerer,6,"CON, CHA",2,0,0,2,"Font of Magic, Flexible Casting: Creating Spell Slots, Flexible Casting: Converting Spell Slot",TRUE,4,3,0,0,0,0,0,0,0,0
+sorcerer,Sorcerer,6,"CON, CHA",3,0,0,2,Metamagic,TRUE,4,4,2,0,0,0,0,0,0,0
+sorcerer,Sorcerer,6,"CON, CHA",4,1,1,2,Ability Score Improvement,TRUE,5,4,3,0,0,0,0,0,0,0
+sorcerer,Sorcerer,6,"CON, CHA",5,0,1,3,,TRUE,5,4,3,2,0,0,0,0,0,0
+sorcerer,Sorcerer,6,"CON, CHA",6,0,1,3,,TRUE,5,4,3,3,0,0,0,0,0,0
+sorcerer,Sorcerer,6,"CON, CHA",7,0,1,3,,TRUE,5,4,3,3,1,0,0,0,0,0
+sorcerer,Sorcerer,6,"CON, CHA",8,1,2,3,Ability Score Improvement,TRUE,5,4,3,3,2,0,0,0,0,0
+sorcerer,Sorcerer,6,"CON, CHA",9,0,2,4,,TRUE,5,4,3,3,3,1,0,0,0,0
+sorcerer,Sorcerer,6,"CON, CHA",10,0,2,4,Metamagic,TRUE,6,4,3,3,3,2,0,0,0,0
+sorcerer,Sorcerer,6,"CON, CHA",11,0,2,4,,TRUE,6,4,3,3,3,2,1,0,0,0
+sorcerer,Sorcerer,6,"CON, CHA",12,1,3,4,Ability Score Improvement,TRUE,6,4,3,3,3,2,1,0,0,0
+sorcerer,Sorcerer,6,"CON, CHA",13,0,3,5,,TRUE,6,4,3,3,3,2,1,1,0,0
+sorcerer,Sorcerer,6,"CON, CHA",14,0,3,5,,TRUE,6,4,3,3,3,2,1,1,0,0
+sorcerer,Sorcerer,6,"CON, CHA",15,0,3,5,,TRUE,6,4,3,3,3,2,1,1,1,0
+sorcerer,Sorcerer,6,"CON, CHA",16,1,4,5,Ability Score Improvement,TRUE,6,4,3,3,3,2,1,1,1,0
+sorcerer,Sorcerer,6,"CON, CHA",17,0,4,6,Metamagic,TRUE,6,4,3,3,3,2,1,1,1,1
+sorcerer,Sorcerer,6,"CON, CHA",18,0,4,6,,TRUE,6,4,3,3,3,3,1,1,1,1
+sorcerer,Sorcerer,6,"CON, CHA",19,1,5,6,Ability Score Improvement,TRUE,6,4,3,3,3,3,2,1,1,1
+sorcerer,Sorcerer,6,"CON, CHA",20,0,5,6,Sorcerous Restoration,TRUE,6,4,3,3,3,3,2,2,1,1
+warlock,Warlock,8,"WIS, CHA",1,0,0,2,"Otherworldly Patron, Pact Magic",TRUE,2,1,0,0,0,0,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",2,0,0,2,Eldritch Invocations,TRUE,2,2,0,0,0,0,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",3,0,0,2,Pact Boon,TRUE,2,0,2,0,0,0,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",4,1,1,2,Ability Score Improvement,TRUE,3,0,2,0,0,0,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",5,0,1,3,,TRUE,3,0,0,2,0,0,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",6,0,1,3,,TRUE,3,0,0,2,0,0,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",7,0,1,3,,TRUE,3,0,0,0,2,0,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",8,1,2,3,Ability Score Improvement,TRUE,3,0,0,0,2,0,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",9,0,2,4,,TRUE,3,0,0,0,0,2,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",10,0,2,4,,TRUE,4,0,0,0,0,2,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",11,0,2,4,Mystic Arcanum (6th level),TRUE,4,0,0,0,0,3,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",12,1,3,4,Ability Score Improvement,TRUE,4,0,0,0,0,3,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",13,0,3,5,Mystic Arcanum (7th level),TRUE,4,0,0,0,0,3,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",14,0,3,5,,TRUE,4,0,0,0,0,3,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",15,0,3,5,Mystic Arcanum (8th level),TRUE,4,0,0,0,0,3,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",16,1,4,5,Ability Score Improvement,TRUE,4,0,0,0,0,3,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",17,0,4,6,Mystic Arcanum (9th level),TRUE,4,0,0,0,0,4,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",18,0,4,6,,TRUE,4,0,0,0,0,4,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",19,1,5,6,Ability Score Improvement,TRUE,4,0,0,0,0,4,0,0,0,0
+warlock,Warlock,8,"WIS, CHA",20,0,5,6,Eldritch Master,TRUE,4,0,0,0,0,4,0,0,0,0
+wizard,Wizard,6,"INT, WIS",1,0,0,2,"Spellcasting: Wizard, Arcane Recovery",TRUE,3,2,0,0,0,0,0,0,0,0
+wizard,Wizard,6,"INT, WIS",2,0,0,2,Arcane Tradition,TRUE,3,3,0,0,0,0,0,0,0,0
+wizard,Wizard,6,"INT, WIS",3,0,0,2,,TRUE,3,4,2,0,0,0,0,0,0,0
+wizard,Wizard,6,"INT, WIS",4,1,1,2,Ability Score Improvement,TRUE,4,4,3,0,0,0,0,0,0,0
+wizard,Wizard,6,"INT, WIS",5,0,1,3,,TRUE,4,4,3,2,0,0,0,0,0,0
+wizard,Wizard,6,"INT, WIS",6,0,1,3,,TRUE,4,4,3,3,0,0,0,0,0,0
+wizard,Wizard,6,"INT, WIS",7,0,1,3,,TRUE,4,4,3,3,1,0,0,0,0,0
+wizard,Wizard,6,"INT, WIS",8,1,2,3,Ability Score Improvement,TRUE,4,4,3,3,2,0,0,0,0,0
+wizard,Wizard,6,"INT, WIS",9,0,2,4,,TRUE,4,4,3,3,3,1,0,0,0,0
+wizard,Wizard,6,"INT, WIS",10,0,2,4,,TRUE,5,4,3,3,3,2,0,0,0,0
+wizard,Wizard,6,"INT, WIS",11,0,2,4,,TRUE,5,4,3,3,3,2,1,0,0,0
+wizard,Wizard,6,"INT, WIS",12,1,3,4,Ability Score Improvement,TRUE,5,4,3,3,3,2,1,0,0,0
+wizard,Wizard,6,"INT, WIS",13,0,3,5,,TRUE,5,4,3,3,3,2,1,1,0,0
+wizard,Wizard,6,"INT, WIS",14,0,3,5,,TRUE,5,4,3,3,3,2,1,1,0,0
+wizard,Wizard,6,"INT, WIS",15,0,3,5,,TRUE,5,4,3,3,3,2,1,1,1,0
+wizard,Wizard,6,"INT, WIS",16,1,4,5,Ability Score Improvement,TRUE,5,4,3,3,3,2,1,1,1,0
+wizard,Wizard,6,"INT, WIS",17,0,4,6,,TRUE,5,4,3,3,3,2,1,1,1,1
+wizard,Wizard,6,"INT, WIS",18,0,4,6,Spell Mastery,TRUE,5,4,3,3,3,3,1,1,1,1
+wizard,Wizard,6,"INT, WIS",19,1,5,6,Ability Score Improvement,TRUE,5,4,3,3,3,3,2,1,1,1
+wizard,Wizard,6,"INT, WIS",20,0,5,6,Signature Spell,TRUE,5,4,3,3,3,3,2,2,1,1

@@ -1,0 +1,96 @@
+class_index,proficiency_skills_description,skills_choose,skill_index
+barbarian,"Choose two from Animal Handling, Athletics, Intimidation, Nature, Perception, and Survival",2,animal-handling
+barbarian,"Choose two from Animal Handling, Athletics, Intimidation, Nature, Perception, and Survival",2,athletics
+barbarian,"Choose two from Animal Handling, Athletics, Intimidation, Nature, Perception, and Survival",2,intimidation
+barbarian,"Choose two from Animal Handling, Athletics, Intimidation, Nature, Perception, and Survival",2,nature
+barbarian,"Choose two from Animal Handling, Athletics, Intimidation, Nature, Perception, and Survival",2,perception
+barbarian,"Choose two from Animal Handling, Athletics, Intimidation, Nature, Perception, and Survival",2,survival
+bard,Choose any three,3,acrobatics
+bard,Choose any three,3,animal-handling
+bard,Choose any three,3,arcana
+bard,Choose any three,3,athletics
+bard,Choose any three,3,deception
+bard,Choose any three,3,history
+bard,Choose any three,3,insight
+bard,Choose any three,3,intimidation
+bard,Choose any three,3,investigation
+bard,Choose any three,3,medicine
+bard,Choose any three,3,nature
+bard,Choose any three,3,perception
+bard,Choose any three,3,performance
+bard,Choose any three,3,persuasion
+bard,Choose any three,3,religion
+bard,Choose any three,3,sleight-of-hand
+bard,Choose any three,3,stealth
+bard,Choose any three,3,survival
+cleric,"Choose two from History, Insight, Medicine, Persuasion, and Religion",2,history
+cleric,"Choose two from History, Insight, Medicine, Persuasion, and Religion",2,insight
+cleric,"Choose two from History, Insight, Medicine, Persuasion, and Religion",2,medicine
+cleric,"Choose two from History, Insight, Medicine, Persuasion, and Religion",2,persuasion
+cleric,"Choose two from History, Insight, Medicine, Persuasion, and Religion",2,religion
+druid,"Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival",2,arcana
+druid,"Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival",2,animal-handling
+druid,"Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival",2,insight
+druid,"Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival",2,medicine
+druid,"Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival",2,nature
+druid,"Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival",2,perception
+druid,"Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival",2,religion
+druid,"Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival",2,survival
+fighter,"Choose two skills from Acrobatics, Animal Handling, Athletics, History, Insight, Intimidation, Perception, and Survival",2,acrobatics
+fighter,"Choose two skills from Acrobatics, Animal Handling, Athletics, History, Insight, Intimidation, Perception, and Survival",2,animal-handling
+fighter,"Choose two skills from Acrobatics, Animal Handling, Athletics, History, Insight, Intimidation, Perception, and Survival",2,athletics
+fighter,"Choose two skills from Acrobatics, Animal Handling, Athletics, History, Insight, Intimidation, Perception, and Survival",2,history
+fighter,"Choose two skills from Acrobatics, Animal Handling, Athletics, History, Insight, Intimidation, Perception, and Survival",2,insight
+fighter,"Choose two skills from Acrobatics, Animal Handling, Athletics, History, Insight, Intimidation, Perception, and Survival",2,intimidation
+fighter,"Choose two skills from Acrobatics, Animal Handling, Athletics, History, Insight, Intimidation, Perception, and Survival",2,perception
+fighter,"Choose two skills from Acrobatics, Animal Handling, Athletics, History, Insight, Intimidation, Perception, and Survival",2,survival
+monk,"Choose two from Acrobatics, Athletics, History, Insight, Religion, and Stealth",2,acrobatics
+monk,"Choose two from Acrobatics, Athletics, History, Insight, Religion, and Stealth",2,athletics
+monk,"Choose two from Acrobatics, Athletics, History, Insight, Religion, and Stealth",2,history
+monk,"Choose two from Acrobatics, Athletics, History, Insight, Religion, and Stealth",2,insight
+monk,"Choose two from Acrobatics, Athletics, History, Insight, Religion, and Stealth",2,religion
+monk,"Choose two from Acrobatics, Athletics, History, Insight, Religion, and Stealth",2,stealth
+paladin,"Choose two from Athletics, Insight, Intimidation, Medicine, Persuasion, and Religion",2,athletics
+paladin,"Choose two from Athletics, Insight, Intimidation, Medicine, Persuasion, and Religion",2,insight
+paladin,"Choose two from Athletics, Insight, Intimidation, Medicine, Persuasion, and Religion",2,intimidation
+paladin,"Choose two from Athletics, Insight, Intimidation, Medicine, Persuasion, and Religion",2,medicine
+paladin,"Choose two from Athletics, Insight, Intimidation, Medicine, Persuasion, and Religion",2,persuasion
+paladin,"Choose two from Athletics, Insight, Intimidation, Medicine, Persuasion, and Religion",2,religion
+ranger,"Choose three from Animal Handling, Athletics, Insight, Investigation, Nature, Perception, Stealth, and Survival",3,animal-handling
+ranger,"Choose three from Animal Handling, Athletics, Insight, Investigation, Nature, Perception, Stealth, and Survival",3,athletics
+ranger,"Choose three from Animal Handling, Athletics, Insight, Investigation, Nature, Perception, Stealth, and Survival",3,insight
+ranger,"Choose three from Animal Handling, Athletics, Insight, Investigation, Nature, Perception, Stealth, and Survival",3,investigation
+ranger,"Choose three from Animal Handling, Athletics, Insight, Investigation, Nature, Perception, Stealth, and Survival",3,nature
+ranger,"Choose three from Animal Handling, Athletics, Insight, Investigation, Nature, Perception, Stealth, and Survival",3,perception
+ranger,"Choose three from Animal Handling, Athletics, Insight, Investigation, Nature, Perception, Stealth, and Survival",3,stealth
+ranger,"Choose three from Animal Handling, Athletics, Insight, Investigation, Nature, Perception, Stealth, and Survival",3,survival
+rogue,"Choose four from Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, and Stealth",4,acrobatics
+rogue,"Choose four from Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, and Stealth",4,athletics
+rogue,"Choose four from Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, and Stealth",4,deception
+rogue,"Choose four from Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, and Stealth",4,insight
+rogue,"Choose four from Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, and Stealth",4,intimidation
+rogue,"Choose four from Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, and Stealth",4,investigation
+rogue,"Choose four from Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, and Stealth",4,perception
+rogue,"Choose four from Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, and Stealth",4,performance
+rogue,"Choose four from Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, and Stealth",4,persuasion
+rogue,"Choose four from Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, and Stealth",4,sleight-of-hand
+rogue,"Choose four from Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, and Stealth",4,stealth
+sorcerer,"Choose two from Arcana, Deception, Insight, Intimidation, Persuasion, and Religion",2,arcana
+sorcerer,"Choose two from Arcana, Deception, Insight, Intimidation, Persuasion, and Religion",2,deception
+sorcerer,"Choose two from Arcana, Deception, Insight, Intimidation, Persuasion, and Religion",2,insight
+sorcerer,"Choose two from Arcana, Deception, Insight, Intimidation, Persuasion, and Religion",2,intimidation
+sorcerer,"Choose two from Arcana, Deception, Insight, Intimidation, Persuasion, and Religion",2,persuasion
+sorcerer,"Choose two from Arcana, Deception, Insight, Intimidation, Persuasion, and Religion",2,religion
+warlock,"Choose two skills from Arcana, Deception, History, Intimidation, Investigation, Nature, and Religion",2,arcana
+warlock,"Choose two skills from Arcana, Deception, History, Intimidation, Investigation, Nature, and Religion",2,deception
+warlock,"Choose two skills from Arcana, Deception, History, Intimidation, Investigation, Nature, and Religion",2,history
+warlock,"Choose two skills from Arcana, Deception, History, Intimidation, Investigation, Nature, and Religion",2,intimidation
+warlock,"Choose two skills from Arcana, Deception, History, Intimidation, Investigation, Nature, and Religion",2,investigation
+warlock,"Choose two skills from Arcana, Deception, History, Intimidation, Investigation, Nature, and Religion",2,nature
+warlock,"Choose two skills from Arcana, Deception, History, Intimidation, Investigation, Nature, and Religion",2,religion
+wizard,"Choose two from Arcana, History, Insight, Investigation, Medicine, and Religion",2,arcana
+wizard,"Choose two from Arcana, History, Insight, Investigation, Medicine, and Religion",2,history
+wizard,"Choose two from Arcana, History, Insight, Investigation, Medicine, and Religion",2,insight
+wizard,"Choose two from Arcana, History, Insight, Investigation, Medicine, and Religion",2,investigation
+wizard,"Choose two from Arcana, History, Insight, Investigation, Medicine, and Religion",2,medicine
+wizard,"Choose two from Arcana, History, Insight, Investigation, Medicine, and Religion",2,religion
