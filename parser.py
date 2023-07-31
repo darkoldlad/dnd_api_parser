@@ -94,16 +94,12 @@ class ParserToGsheet:
         worksheet = self._get_worksheet(SPELLS_SHEET_NAME)
         all_spells = self._get_all(route=route)
 
-        rows = []
+
         headers = [
-           'index', 'name', 'description', 'higher_level', 'range', 'components', 'material', 'area_of_effect_type', 'area_of_effect_size', 'ritual', 'duration', 'concentration', 'casting_time', 'level', 'attack_type', 'damage_type'
+           'index', 'name', 'description', 'higher_level', 'range', 'components', 'material', 'area_of_effect_type', 'area_of_effect_size', 'ritual', 'duration', 'concentration', 'casting_time', 'spell_level', 'school', 'class_index', 'attack_type', 'damage_type', 'damage_modifier', 'modifier_lvl', 'damage'
         ]
-        headers.extend([f'damage_at_level_{str(i)}' for i in range(1, 21)])
-        headers.extend([f'damage_at_slot_{str(i)}' for i in range(1, 10)])
-        headers.extend([
-            'school', 'bard', 'cleric', 'druid', 'fighter', 'monk', 'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'
-        ])
-        rows.append(headers)
+
+        rows = [headers]
 
         if len(all_spells) > 0:
             i = 1
@@ -124,61 +120,43 @@ class ParserToGsheet:
                 concentration = spell_data.get('concentration')
                 casting_time = spell_data.get('casting_time')
                 level = spell_data.get('level')
-                attack_type = spell_data.get('attack_type')
-                damage = spell_data.get('damage', {})
-                damage_type = damage.get('damage_type', {}).get('name')
-                damage_at_levels = damage.get('damage_at_character_level', {})
-                damage_at_level = []
-                for lvl in range(1, 21):
-                    level_damage = damage_at_levels.get(str(lvl))
-                    if level_damage:
-                        damage_at_level.append(level_damage)
-                    elif damage_at_level:
-                        damage_at_level.append(damage_at_level[-1])
-                    else:
-                        damage_at_level.append('')
-                damage_at_slots = damage.get('damage_at_slot_level', {})
-                damage_at_slot = []
-                for slot in range(1, 10):
-                    slot_damage = damage_at_slots.get(str(slot))
-                    if slot_damage:
-                        damage_at_slot.append(slot_damage)
-                    elif damage_at_slot:
-                        damage_at_slot.append(damage_at_slot[-1])
-                    else:
-                        damage_at_slot.append('')
-
                 school = spell_data.get('school', {}).get('name')
-                classes_use = {class_.get('index'): True for class_ in spell_data.get('classes', [])}
+                attack_type = spell_data.get('attack_type')
 
-                bard = classes_use.get('bard', False)
-                cleric = classes_use.get('cleric', False)
-                druid = classes_use.get('druid', False)
-                fighter = classes_use.get('fighter', False)
-                monk = classes_use.get('monk', False)
-                paladin = classes_use.get('paladin', False)
-                ranger = classes_use.get('ranger', False)
-                rogue = classes_use.get('rogue', False)
-                sorcerer = classes_use.get('sorcerer', False)
-                warlock = classes_use.get('warlock', False)
-                wizard = classes_use.get('wizard', False)
-                row = [
-                    spell, name, description, higher_level, range_,
-                    components, material, area_of_effect_type, area_of_effect_size,
-                    ritual, duration, concentration, casting_time,
-                    level, attack_type, damage_type
-                ]
-                row.extend(damage_at_level)
-                row.extend(damage_at_slot)
-                row.extend([
-                    school, bard, cleric, druid,
-                    fighter, monk, paladin, ranger,
-                    rogue, sorcerer, warlock, wizard
-                ])
+                for class_ in spell_data.get('classes', [{}]):
+                    class_index = class_.get('index')
+                    damage = spell_data.get('damage', {})
+                    damage_type = damage.get('damage_type', {}).get('name')
+                    damage_at_levels = damage.get('damage_at_character_level')
+                    damage_at_slots = damage.get('damage_at_slot_level')
+                    damage_modifier = 'slot' if damage_at_slots else 'level' if damage_at_levels else ''
 
-                rows.append(row)
-                i += 1
+                    if damage_modifier == 'level':
+                        level_keys = [int(key) for key in damage_at_levels.keys()]
+                        prev_value = None
+                        for lvl in range(min(level_keys), 21):
+                            modifier_lvl = lvl
+                            if lvl in level_keys:
+                                prev_value = damage_at_levels.get(f'{lvl}')
+                            damage_value = prev_value
+                            row = [spell, name, description, higher_level, range_, components, material, area_of_effect_type, area_of_effect_size, ritual, duration, concentration, casting_time, level, school, class_index, attack_type, damage_type, damage_modifier, modifier_lvl, damage_value]
+                            rows.append(row)
 
+                    elif damage_modifier == 'slot':
+                        slot_keys = [int(key) for key in damage_at_slots.keys()]
+                        prev_value = None
+                        for slot in range(level, max(slot_keys)+1):
+                            modifier_lvl = slot
+                            if slot in slot_keys:
+                                prev_value = damage_at_slots.get(f'{slot}')
+                            damage_value = prev_value
+                            row = [spell, name, description, higher_level, range_, components, material, area_of_effect_type, area_of_effect_size, ritual, duration, concentration, casting_time, level, school, class_index, attack_type, damage_type, damage_modifier, modifier_lvl, damage_value]
+                            rows.append(row)
+
+                    else:
+                        row = [spell, name, description, higher_level, range_, components, material, area_of_effect_type, area_of_effect_size, ritual, duration, concentration, casting_time, level, school, class_index, attack_type, damage_type, damage_modifier, '', '']
+                        rows.append(row)
+                i+=1
             worksheet.clear()
             worksheet.append_rows(rows)
             return 'jobs done'
@@ -304,6 +282,13 @@ class ParserToGsheet:
                 class_levels_response = self._request(path=f'{route + class_}/levels')
                 if class_levels_response.ok:
                     class_levels = class_levels_response.json()
+                    available_spells = [class_level.get('spellcasting', {}) for class_level in class_levels]
+                    spells = [casting_level.get('cantrips_known') for casting_level in available_spells]
+                    spells.extend([
+                        casting_level.get(f'spell_slots_level_{i}') for casting_level
+                        in available_spells for i in range(1, 10)
+                    ])
+                    is_caster = any(spell for spell in spells)
                     for level in class_levels:
                         class_level = level.get('level')
                         possible_skill = ''
@@ -313,7 +298,7 @@ class ParserToGsheet:
                             level.get('spellcasting', {}).get(f'spell_slots_level_{i}')
                             for i in range(1, 10)
                         ])
-                        is_caster = any(level for level in spellcasting_list)
+
                         ability_score_bonuses = level.get('ability_score_bonuses')
                         prof_bonus = level.get('prof_bonus')
 
