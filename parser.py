@@ -10,8 +10,9 @@ from typing import Union, Dict, List, Optional
 from enum import Enum
 
 from config import GSPREAD_SCOPE, GSHEET_CREDENTIALS_PATH, URL_FOR_GSHEET, \
-    SPELLS_SHEET_NAME, CLASS_SHEET_NAME, RACES_SHEET_NAME, FEATURES_SHEET_NAME, TRAITS_SHEET_NAME, SKILLS_SHEET_NAME, \
-    PROFICIENCIES_SHEET_NAME, SUBRACES_SHEET_NAME
+    SPELLS_SHEET_NAME, CLASS_SHEET_NAME, RACES_SHEET_NAME, FEATURES_SHEET_NAME, \
+    TRAITS_SHEET_NAME, SKILLS_SHEET_NAME, \
+    PROFICIENCIES_SHEET_NAME, SUBRACES_SHEET_NAME, SUBCLASSES_SHEET_NAME
 
 
 class Methods(str, Enum):
@@ -23,6 +24,7 @@ class Methods(str, Enum):
     PARSE_PROFICIENCIES = 'parse_proficiencies'
     PARSE_SKILLS = 'parse_skills'
     PARSE_SUBRACES = 'parse_subraces'
+    PARSE_SUBCLASSES = 'parse_subclasses'
 
 
 class ParserToGsheet:
@@ -332,6 +334,7 @@ class ParserToGsheet:
                                     features_names, is_caster]
                         row.extend(spellcasting_list)
                         rows.append(row)
+
             worksheet.clear()
             worksheet.append_rows(rows)
 
@@ -403,7 +406,7 @@ class ParserToGsheet:
     def parse_features(self, route: str = 'features/') -> str:
         worksheet = self._get_worksheet(FEATURES_SHEET_NAME)
         headers = [
-            'index', 'name', 'class_index', 'description', 'level'
+            'index', 'name', 'class_index', 'subclass_index', 'description', 'level'
         ]
         rows = [headers]
 
@@ -417,10 +420,11 @@ class ParserToGsheet:
                 feature_data = self._get_item(item=feature, local_folder='features', api_route=route)
                 name = feature_data.get('name')
                 class_index = feature_data.get('class', {}).get('index')
+                subclass_index = feature_data.get('subclass', {}).get('index')
                 desc = '\n'.join(feature_data.get('desc', []))
                 level = feature_data.get('level')
                 row = [
-                    feature, name, class_index, desc, level
+                    feature, name, class_index, subclass_index, desc, level
                 ]
                 rows.append(row)
             worksheet.clear()
@@ -591,9 +595,80 @@ class ParserToGsheet:
             return 'jobs done'
         return 'failed to get all subraces'
 
+    def parse_subclasses(self, route: str = 'subclasses/') -> str:
+        worksheet = self._get_worksheet(SUBCLASSES_SHEET_NAME)
+        all_subclasses = self._get_all(route)
+
+        subclasses_spells = [['subclass_index', 'spell_index', 'class_index', 'class_level']]
+
+        if len(all_subclasses) > 0:
+
+            headers = [
+                'index', 'name', 'description', 'class_index', 'subclass_flavor',
+                 'level',
+                'features_names',
+            ]
+
+            rows = [headers]
+
+            for subclass in all_subclasses:
+
+                print(f'processing {subclass}...', end='')
+
+                subclass_details = self._get_item(item=subclass,
+                                               local_folder='subclasses',
+                                               api_route=route)
+                name = subclass_details.get('name')
+                description = '\n'.join(subclass_details.get('desc', []))
+                class_index = subclass_details.get('class',{}).get('index')
+                subclass_flavor = subclass_details.get('subclass_flavor')
+
+                available_spells = subclass_details.get('spells', [])
+                if len(available_spells) > 0:
+                    for spell in available_spells:
+                        subclasses_spells.append([
+                            subclass, spell.get('spell', {}).get('index'), class_index, spell.get('prerequisites', [{}])[0].get('index').replace(f'{class_index}-', '')
+                        ])
+
+                subclass_levels_response = self._request(
+                    path=f'{route + subclass}/levels')
+
+                if subclass_levels_response.ok:
+                    subclass_levels = subclass_levels_response.json()
+
+                    for level in subclass_levels:
+
+                        subclass_level = level.get('level')
+
+                        features_names = ', '.join(
+                            [feature.get('name') for feature in
+                             level.get('features', [])])
+
+                        if subclass_level == 1:
+
+                            print('level 1', end='\n')
+
+                        else:
+                            print(f'processing {subclass}...level {subclass_level}',
+                                  end='\n')
+                        row = [
+                            subclass, name, description, class_index, subclass_flavor, subclass_level,
+                            features_names]
+
+                        rows.append(row)
+            worksheet.clear()
+            worksheet.append_rows(rows)
+
+            subclasses_spells_sheet = self._get_worksheet('Subclasses_Spells')
+            subclasses_spells_sheet.clear()
+            subclasses_spells_sheet.append_rows(subclasses_spells)
+
+            return 'jobs done'
+        return 'failed to receive all classes'
+
     def parse_all(self, exceptions: Union[List[Methods], None] = None):
 
-        exceptions_const = ['__init__', 'parse_all', '_request', '_get_all', '_get_item', '_get_worksheet', 'parse_csv_to_sql_file',
+        exceptions_const = ['__init__', 'parse_all', '_request', '_get_all', '_get_item', '_get_worksheet', 'csv_to_sql',
                             'parse_spell_library_json']
         all_methods = [name for name, method in inspect.getmembers(self, inspect.ismethod) if name not in exceptions_const]
 
