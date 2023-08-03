@@ -12,7 +12,8 @@ from enum import Enum
 from config import GSPREAD_SCOPE, GSHEET_CREDENTIALS_PATH, URL_FOR_GSHEET, \
     SPELLS_SHEET_NAME, CLASS_SHEET_NAME, RACES_SHEET_NAME, FEATURES_SHEET_NAME, \
     TRAITS_SHEET_NAME, SKILLS_SHEET_NAME, \
-    PROFICIENCIES_SHEET_NAME, SUBRACES_SHEET_NAME, SUBCLASSES_SHEET_NAME
+    PROFICIENCIES_SHEET_NAME, SUBRACES_SHEET_NAME, SUBCLASSES_SHEET_NAME, \
+    EQUIPMENT_SHEET_NAME, MAGIC_ITEMS_SHEET_NAME
 
 
 class Methods(str, Enum):
@@ -25,6 +26,8 @@ class Methods(str, Enum):
     PARSE_SKILLS = 'parse_skills'
     PARSE_SUBRACES = 'parse_subraces'
     PARSE_SUBCLASSES = 'parse_subclasses'
+    PARSE_EQUIPMENT = 'parse_equipment'
+    PARSE_MAGIC_ITEMS = 'parse_magic_items'
 
 
 class ParserToGsheet:
@@ -665,6 +668,90 @@ class ParserToGsheet:
 
             return 'jobs done'
         return 'failed to receive all classes'
+
+    def parse_equipment(self, route: str = 'equipment/') -> str:
+
+        worksheet = self._get_worksheet(EQUIPMENT_SHEET_NAME)
+        equipment_list = self._get_all(route)
+
+        if len(equipment_list) > 0:
+            rows = [[
+                'index', 'name', 'category_index', 'cost', 'weight', 'weapon_category', 'weapon_range', 'damage_dice', 'damage_type', 'range_normal', 'range_long', 'properties_indices', '2h_damage_dice', '2h_damage_type',
+                'armor_category', 'ac', 'ac_dex_bonus', 'str_min', 'stealth_disadvantage'
+            ]]
+
+            for item in equipment_list:
+
+                print(f'processing {item}')
+
+                item_details = self._get_item(item=item, local_folder='equipment', api_route=route)
+                rows.append([
+                    item,
+                    item_details.get('name'),
+                    item_details.get('equipment_category', {}).get('index'),
+                    f"{item_details.get('cost', {}).get('quantity')} {item_details.get('cost', {}).get('unit')}",
+                    item_details.get('weight'),
+                    item_details.get('weapon_category'),
+                    item_details.get('weapon_range'),
+                    item_details.get('damage', {}).get('damage_dice'),
+                    item_details.get('damage', {}).get('damage_type', {}).get('name'),
+                    item_details.get('range', {}).get('normal'),
+                    item_details.get('range', {}).get('long'),
+                    ", ".join([property_.get('index') for property_ in item_details.get('properties', [{}])]),
+                    item_details.get('two_handed_damage',{}).get('damage_dice'),
+                    item_details.get('two_handed_damage', {}).get(
+                        'damage_type', {}).get('name'),
+                    item_details.get('armor_category'),
+                    item_details.get('armor_class', {}).get('base'),
+                    item_details.get('armor_class', {}).get('max_bonus') if item_details.get('armor_class', {}).get('dex_bonus') else 0,
+                    item_details.get('str_minimum'),
+                    item_details.get('stealth_disadvantage'),
+                ])
+
+            worksheet.clear()
+            worksheet.append_rows(rows)
+            return 'jobs done'
+        return 'failed to get all items'
+
+    def parse_magic_items(self, route:str = 'magic-items/') -> str:
+
+        worksheet = self._get_worksheet(MAGIC_ITEMS_SHEET_NAME)
+        all_items = self._get_all(route)
+
+        if len(all_items) > 0:
+            rows = [[
+              'index', 'name', 'description', 'category_index', 'rarity', 'variant', 'has_children','parent_index'
+            ]]
+
+            parent_indices = {}
+
+            for item in all_items:
+
+                print(f'processing {item}')
+
+                item_details = self._get_item(item=item, local_folder='magic_items', api_route=route)
+
+                children_indices = [var.get('index') for var in
+                     item_details.get('variants', [{}])]
+                if len(children_indices)>0:
+                    for indx in children_indices:
+                        parent_indices[indx] = item
+
+                rows.append([
+                    item,
+                    item_details.get('name'),
+                    ", ".join(
+                               item_details.get('desc', [])),
+                    item_details.get('equipment_category', {}).get('index'),
+                    item_details.get('rarity',{}).get('name'),
+                    item_details.get('variant'),
+                    True if len(item_details.get('variants',[])) > 0 else False,
+                    parent_indices.get(item),
+                ])
+            worksheet.clear()
+            worksheet.append_rows(rows)
+            return 'jobs done'
+        return 'failed to get all magic items'
 
     def parse_all(self, exceptions: Union[List[Methods], None] = None):
 

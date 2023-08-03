@@ -13,7 +13,9 @@ def main():
         Methods.PARSE_FEATURES,
         Methods.PARSE_SKILLS,
         Methods.PARSE_SUBRACES,
-        # Methods.PARSE_SUBCLASSES,
+        Methods.PARSE_SUBCLASSES,
+        Methods.PARSE_EQUIPMENT,
+        # Methods.PARSE_MAGIC_ITEMS,
     ])
     """
     parser.csv_to_sql(
