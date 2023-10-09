@@ -1,19 +1,17 @@
-import gspread
 import requests
 import csv
 import json
 import re
 import os
 import inspect
-from google.oauth2 import service_account
 from typing import Union, Dict, List, Optional
 from enum import Enum
 
-from config import GSPREAD_SCOPE, GSHEET_CREDENTIALS_PATH, URL_FOR_GSHEET, \
-    SPELLS_SHEET_NAME, CLASS_SHEET_NAME, RACES_SHEET_NAME, FEATURES_SHEET_NAME, \
+from config import SPELLS_SHEET_NAME, CLASS_SHEET_NAME, RACES_SHEET_NAME, FEATURES_SHEET_NAME, \
     TRAITS_SHEET_NAME, SKILLS_SHEET_NAME, \
     PROFICIENCIES_SHEET_NAME, SUBRACES_SHEET_NAME, SUBCLASSES_SHEET_NAME, \
     EQUIPMENT_SHEET_NAME, MAGIC_ITEMS_SHEET_NAME
+from gsheet_service import Gsheet
 
 
 class Methods(str, Enum):
@@ -30,12 +28,9 @@ class Methods(str, Enum):
     PARSE_MAGIC_ITEMS = 'parse_magic_items'
 
 
-class ParserToGsheet:
-    def __init__(self, sheet_url = URL_FOR_GSHEET, scopes = GSPREAD_SCOPE, cred_path = GSHEET_CREDENTIALS_PATH, auth=None):
-        self.sheet = gspread.authorize(
-            service_account.Credentials.from_service_account_file(cred_path)
-            .with_scopes(scopes)
-        ).open_by_url(sheet_url)
+class Parser:
+    def __init__(self, auth=None):
+        self.sheet = Gsheet()
         self.url = 'https://www.dnd5eapi.co/api/'
         self.auth = auth
 
@@ -56,14 +51,6 @@ class ParserToGsheet:
             json=json_payload,
             headers=headers,
         )
-
-    def _get_worksheet(self, gsheet_name: str):
-        try:
-            worksheet = self.sheet.worksheet(gsheet_name)
-            return worksheet
-        except gspread.exceptions.WorksheetNotFound:
-            worksheet = self.sheet.add_worksheet(title=gsheet_name, rows="1000", cols="26")
-            return worksheet
 
     def _get_item(self, item: str, local_folder: str, api_route: str) -> Optional[Dict]:
 
@@ -96,7 +83,7 @@ class ParserToGsheet:
             return [result.get('index') for result in results]
 
     def parse_spells(self, route: str = 'spells/') -> str:
-        worksheet = self._get_worksheet(SPELLS_SHEET_NAME)
+        worksheet = self.sheet.get_worksheet(SPELLS_SHEET_NAME)
         all_spells = self._get_all(route=route)
 
 
@@ -197,7 +184,7 @@ class ParserToGsheet:
             return 'jobs done'
 
     def parse_spell_library_json(self, path) -> str:
-        worksheet = self._get_worksheet('Spells from Spell Library Json')
+        worksheet = self.sheet.get_worksheet('Spells from Spell Library Json')
         rows = [[
             'name', 'description', 'range', 'components',
             'material', 'ritual',
@@ -251,7 +238,7 @@ class ParserToGsheet:
         return 'jobs done'
 
     def parse_classes(self, route: str = 'classes/') -> str:
-        worksheet = self._get_worksheet(CLASS_SHEET_NAME)
+        worksheet = self.sheet.get_worksheet(CLASS_SHEET_NAME)
 
         all_classes = self._get_all(route)
         classes_skills = [['class_index', 'proficiency_skills_description', 'skills_choose', 'skill_index']]
@@ -341,7 +328,7 @@ class ParserToGsheet:
             worksheet.clear()
             worksheet.append_rows(rows)
 
-            classes_skills_worksheet = self._get_worksheet('Classes_Skills')
+            classes_skills_worksheet = self.sheet.get_worksheet('Classes_Skills')
             classes_skills_worksheet.clear()
             classes_skills_worksheet.append_rows(classes_skills)
 
@@ -349,7 +336,7 @@ class ParserToGsheet:
         return 'failed to receive all classes'
 
     def parse_races(self, route: str = 'races/') -> str:
-        worksheet = self._get_worksheet(RACES_SHEET_NAME)
+        worksheet = self.sheet.get_worksheet(RACES_SHEET_NAME)
         abilities_list = ['STR', 'DEX', 'CON', 'WIS', 'INT', 'CHA']
         headers = [
             'index', 'name', 'speed'
@@ -407,7 +394,7 @@ class ParserToGsheet:
         return 'failed to receive races list'
 
     def parse_features(self, route: str = 'features/') -> str:
-        worksheet = self._get_worksheet(FEATURES_SHEET_NAME)
+        worksheet = self.sheet.get_worksheet(FEATURES_SHEET_NAME)
         headers = [
             'index', 'name', 'class_index', 'subclass_index', 'description', 'level'
         ]
@@ -436,7 +423,7 @@ class ParserToGsheet:
         return 'failed to get all features'
 
     def parse_traits(self, route: str = 'traits/') -> str:
-        worksheet = self._get_worksheet(TRAITS_SHEET_NAME)
+        worksheet = self.sheet.get_worksheet(TRAITS_SHEET_NAME)
         headers = [
             'index', 'name', 'description', 'race_index', 'subrace_index', 'proficiency_index', 'is_damage',
             'damage_type', 'area_of_effect_type', 'area_of_effect_size', 'usage_times', 'dc', 'dc_success', 'level', 'damage'
@@ -503,7 +490,7 @@ class ParserToGsheet:
         return 'failed to get all traits'
 
     def parse_proficiencies(self, route: str ='proficiencies/') -> str:
-        worksheet = self._get_worksheet(PROFICIENCIES_SHEET_NAME)
+        worksheet = self.sheet.get_worksheet(PROFICIENCIES_SHEET_NAME)
 
         headers = ['index', 'name', 'reference_type', 'class_index', 'race_index', 'reference_index', 'reference_url']
         rows = [headers]
@@ -537,7 +524,7 @@ class ParserToGsheet:
         return 'failed to get all proficiencies'
 
     def parse_skills(self, route: str = 'skills/') -> str:
-        worksheet = self._get_worksheet(SKILLS_SHEET_NAME)
+        worksheet = self.sheet.get_worksheet(SKILLS_SHEET_NAME)
         headers = ['index', 'name', 'ability_score', 'description']
         rows = [headers]
 
@@ -562,7 +549,7 @@ class ParserToGsheet:
         return 'failed to get all skills'
 
     def parse_subraces(self, route: str = 'subraces/') -> str:
-        worksheet = self._get_worksheet(SUBRACES_SHEET_NAME)
+        worksheet = self.sheet.get_worksheet(SUBRACES_SHEET_NAME)
         abilities_list = ['STR', 'DEX', 'CON', 'WIS', 'INT', 'CHA']
         headers = ['index', 'name']
         headers.extend([
@@ -599,7 +586,7 @@ class ParserToGsheet:
         return 'failed to get all subraces'
 
     def parse_subclasses(self, route: str = 'subclasses/') -> str:
-        worksheet = self._get_worksheet(SUBCLASSES_SHEET_NAME)
+        worksheet = self.sheet.get_worksheet(SUBCLASSES_SHEET_NAME)
         all_subclasses = self._get_all(route)
 
         subclasses_spells = [['subclass_index', 'spell_index', 'class_index', 'class_level']]
@@ -662,7 +649,7 @@ class ParserToGsheet:
             worksheet.clear()
             worksheet.append_rows(rows)
 
-            subclasses_spells_sheet = self._get_worksheet('Subclasses_Spells')
+            subclasses_spells_sheet = self.sheet.get_worksheet('Subclasses_Spells')
             subclasses_spells_sheet.clear()
             subclasses_spells_sheet.append_rows(subclasses_spells)
 
@@ -671,7 +658,7 @@ class ParserToGsheet:
 
     def parse_equipment(self, route: str = 'equipment/') -> str:
 
-        worksheet = self._get_worksheet(EQUIPMENT_SHEET_NAME)
+        worksheet = self.sheet.get_worksheet(EQUIPMENT_SHEET_NAME)
         equipment_list = self._get_all(route)
 
         if len(equipment_list) > 0:
@@ -715,7 +702,7 @@ class ParserToGsheet:
 
     def parse_magic_items(self, route:str = 'magic-items/') -> str:
 
-        worksheet = self._get_worksheet(MAGIC_ITEMS_SHEET_NAME)
+        worksheet = self.sheet.get_worksheet(MAGIC_ITEMS_SHEET_NAME)
         all_items = self._get_all(route)
 
         if len(all_items) > 0:
@@ -755,7 +742,7 @@ class ParserToGsheet:
 
     def parse_all(self, exceptions: Union[List[Methods], None] = None):
 
-        exceptions_const = ['__init__', 'parse_all', '_request', '_get_all', '_get_item', '_get_worksheet', 'csv_to_sql',
+        exceptions_const = ['__init__', 'parse_all', '_request', '_get_all', '_get_item', 'csv_to_sql',
                             'parse_spell_library_json']
         all_methods = [name for name, method in inspect.getmembers(self, inspect.ismethod) if name not in exceptions_const]
 

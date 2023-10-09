@@ -1,8 +1,8 @@
-from parser import ParserToGsheet, Methods
+from parser import Parser, Methods
 
 
 def main():
-    parser = ParserToGsheet()
+    parser = Parser()
 
     parser.parse_all(exceptions=[
         Methods.PARSE_SPELLS,
